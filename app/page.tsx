@@ -1,37 +1,21 @@
 "use client";
-import {
-  bytesToHex,
-  createPublicClient,
-  createWalletClient,
-  custom,
-  http,
-  parseAbi,
-} from "viem";
-import React, { useState, useEffect } from "react";
-import {
-  EMAIL_SIGNER_FACTORY_ADDRESS,
-  RELAYER_URL,
-  RPC_URL,
-  BACKEND_URL,
-} from "./config";
+import { createWalletClient, custom } from "viem";
+import React, { useState } from "react";
 import { sepolia } from "viem/chains";
-import { buildPoseidon } from "circomlibjs";
-import HashApproval from './components/HashApproval';
-import TabInterface from './components/TabInterface';
-import WalletConnect from './components/WalletConnect';
+import HashApproval from "./components/HashApproval";
+import TabInterface from "./components/TabInterface";
+import WalletConnect from "./components/WalletConnect";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [emailSignerAddress, setEmailSignerAddress] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [logs, setLogs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [accountCode, setAccountCode] = useState<string>("");
-  const [existingAccountCode, setExistingAccountCode] = useState<string | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Add wallet connection state
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [walletClient, setWalletClient] = useState<any>(null);
 
   const addLog = (message: string) => {
@@ -45,7 +29,8 @@ export default function Home() {
     // Create wallet client using the connected MetaMask
     const client = createWalletClient({
       chain: sepolia,
-      transport: custom((window as any).ethereum)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transport: custom((window as any).ethereum),
     });
     setWalletClient(client);
 
@@ -78,13 +63,13 @@ export default function Home() {
   // Create tabs configuration
   const tabs = [
     {
-      id: 'registration',
-      label: 'Register',
-      content: registrationContent
+      id: "registration",
+      label: "Register",
+      content: registrationContent,
     },
     {
-      id: 'approveHash',
-      label: 'Approve Hash',
+      id: "approveHash",
+      label: "Approve Hash",
       content: (
         <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
           <div className="h-full">
@@ -98,8 +83,8 @@ export default function Home() {
             />
           </div>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
