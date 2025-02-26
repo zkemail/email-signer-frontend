@@ -616,8 +616,8 @@ export default function HashApproval({
           disabled={isLoading || !hasAccountCode || !walletClient}
           className={`w-full py-2 px-4 rounded-md text-white font-medium ${
             isLoading || !hasAccountCode || !walletClient
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
+              ? "bg-green-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
           }`}
         >
           {isLoading ? "Processing..." : "Approve Hash"}

@@ -454,7 +454,7 @@ export default function WalletConnect({
             </button>
             <button
               onClick={createNewAccountCodeInstead}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
             >
               Create New
             </button>
@@ -477,7 +477,7 @@ export default function WalletConnect({
               onClick={connectWallet}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
               }`}
             >
               {isLoading ? "Connecting..." : "Connect Metamask"}
@@ -516,8 +516,8 @@ export default function WalletConnect({
                 disabled={isLoading || !email}
                 className={`w-full px-4 py-2 rounded-md text-white ${
                   isLoading || !email
-                    ? "bg-blue-400"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-green-400"
+                    : "bg-green-600 hover:bg-green-700"
                 }`}
               >
                 {isLoading ? "Processing..." : "Continue"}
@@ -543,7 +543,7 @@ export default function WalletConnect({
               onClick={startDeployment}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
               }`}
             >
               {isLoading ? "Processing..." : "Deploy Email Signer & Safe"}
@@ -557,7 +557,7 @@ export default function WalletConnect({
             <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
-                className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
+                className="animate-spin h-8 w-8 text-green-600 dark:text-green-400"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -627,7 +627,7 @@ export default function WalletConnect({
                   href={`https://sepolia.etherscan.io/address/${emailSignerAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline dark:text-blue-400 text-xs mt-1 inline-block"
+                  className="text-green-600 hover:underline dark:text-green-400 text-xs mt-1 inline-block"
                 >
                   View on Etherscan
                 </a>
@@ -642,7 +642,7 @@ export default function WalletConnect({
                   href={`https://sepolia.etherscan.io/address/${safeAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline dark:text-blue-400 text-xs mt-1 inline-block"
+                  className="text-green-600 hover:underline dark:text-green-400 text-xs mt-1 inline-block"
                 >
                   View on Etherscan
                 </a>
@@ -665,7 +665,7 @@ export default function WalletConnect({
                 setCurrentStep("email");
                 setLogs([]);
               }}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
             >
               Start Again
             </button>
@@ -685,7 +685,7 @@ export default function WalletConnect({
           href="https://metamask.io/download/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:underline dark:text-blue-400 mt-2 inline-block"
+          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block"
         >
           Download MetaMask
         </a>
@@ -737,7 +737,7 @@ export default function WalletConnect({
                     ["email", "accountCode", "deploying", "complete"].indexOf(
                       currentStep as Step
                     ) >= i
-                      ? "bg-blue-600 dark:bg-blue-400"
+                      ? "bg-green-600 dark:bg-green-400"
                       : "bg-gray-300 dark:bg-gray-600"
                   }`}
                 />
