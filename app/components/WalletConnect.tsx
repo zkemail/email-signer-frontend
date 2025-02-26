@@ -161,6 +161,8 @@ export default function WalletConnect({
         // Generate 32 random bytes and convert to hex string
         const randomBytes = new Uint8Array(32);
         crypto.getRandomValues(randomBytes);
+        // Set first byte to 0
+        randomBytes[0] = 0;
         const newCode = '0x' + Array.from(randomBytes)
             .map(b => b.toString(16).padStart(2, '0'))
             .join('');
@@ -249,7 +251,8 @@ export default function WalletConnect({
             const bytecode = await publicClient.getCode({
                 address: signerAddress,
             });
-            const isEmailSignerDeployed = bytecode !== '0x';
+            console.log(`Bytecode: ${bytecode}`);
+            const isEmailSignerDeployed = bytecode !== '0x' && bytecode !== undefined;
             addLog(`Email signer contract deployed: ${isEmailSignerDeployed}`);
 
             // Deploy if not already deployed
@@ -260,6 +263,7 @@ export default function WalletConnect({
                     abi: emailSignerFactoryAbi,
                     functionName: "deploy",
                     args: [accountSalt],
+                    account: address as `0x${string}`,
                 });
 
                 addLog(`Deployment transaction hash: ${txHash}`);

@@ -93,6 +93,8 @@ export default function Home() {
               setEmail={setEmail}
               accountCode={accountCode}
               setAccountCode={setAccountCode}
+              walletClient={walletClient}
+              walletAddress={walletAddress}
             />
           </div>
         </div>
