@@ -345,18 +345,6 @@ export default function WalletConnect({
                 // Save Safe address to state
                 setSafeAddress(deployedSafeAddress);
 
-                // Fund the Safe with a small amount of ETH
-                addLog("Funding Safe with initial ETH...");
-                const fundTx = await walletClient.sendTransaction({
-                    to: deployedSafeAddress as `0x${string}`,
-                    value: parseEther('0.001'),
-                    account: address as `0x${string}`,
-                });
-
-                addLog(`Funding transaction hash: ${fundTx}`);
-                await publicClient.waitForTransactionReceipt({ hash: fundTx });
-                addLog("Safe funded successfully");
-
                 return deployedSafeAddress;
             } else {
                 // Safe already deployed

@@ -230,8 +230,8 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    dkimContractAddress: dkimRegistryAddress,
-                    chain: "sepolia",
+                    // dkimContractAddress: dkimRegistryAddress,
+                    // chain: "sepolia",
                     accountCode,
                     codeExistsInEmail: true,
                     commandTemplate: 'signHash {uint}',
