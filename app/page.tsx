@@ -3,108 +3,115 @@ import {
   bytesToHex,
   createPublicClient,
   createWalletClient,
+  custom,
   http,
   parseAbi,
 } from "viem";
+import React, { useState, useEffect } from "react";
 import {
-  DEPLOYER_PRIVATE_KEY,
   EMAIL_SIGNER_FACTORY_ADDRESS,
   RELAYER_URL,
   RPC_URL,
+  BACKEND_URL,
 } from "./config";
-import { baseSepolia } from "viem/chains";
-import { useState } from "react";
-import { privateKeyToAccount } from "viem/accounts";
+import { sepolia } from "viem/chains";
 import { buildPoseidon } from "circomlibjs";
-
-const account = privateKeyToAccount(DEPLOYER_PRIVATE_KEY);
-const publicClient = createPublicClient({
-  chain: baseSepolia,
-  transport: http(RPC_URL),
-});
-const walletClient = createWalletClient({
-  account,
-  chain: baseSepolia,
-  transport: http(RPC_URL),
-});
+import HashApproval from './components/HashApproval';
+import TabInterface from './components/TabInterface';
+import WalletConnect from './components/WalletConnect';
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [emailSignerAddress, setEmailSignerAddress] = useState("");
+  const [logs, setLogs] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [accountCode, setAccountCode] = useState<string>("");
+  const [existingAccountCode, setExistingAccountCode] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const generateAccountCode = async () => {
-    const poseidon = await buildPoseidon();
-    const accountCodeBytes: Uint8Array = poseidon.F.random();
-    return bytesToHex(accountCodeBytes.reverse());
+  // Add wallet connection state
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [walletClient, setWalletClient] = useState<any>(null);
+
+  const addLog = (message: string) => {
+    setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  const getOrDeployEmailSigner = async (email: string) => {
-    const accountCode = await generateAccountCode();
+  const handleWalletConnect = (address: string) => {
+    setWalletAddress(address);
+    setIsWalletConnected(true);
 
-    const { accountSalt } = await fetch(`${RELAYER_URL}/api/accountSalt`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        accountCode: accountCode,
-        emailAddress: email,
-      }),
-    }).then((res) => res.json());
-    console.log("accountSalt: ", accountSalt);
-
-    const emailSignerFactoryAbi = parseAbi([
-      "function predictAddress(bytes32 accountSalt) view returns (address)",
-      "function deploy(bytes32 accountSalt) returns (address)",
-    ]);
-
-    const emailSignerAddress = await publicClient.readContract({
-      address: EMAIL_SIGNER_FACTORY_ADDRESS,
-      abi: emailSignerFactoryAbi,
-      functionName: "predictAddress",
-      args: [accountSalt],
+    // Create wallet client using the connected MetaMask
+    const client = createWalletClient({
+      chain: sepolia,
+      transport: custom((window as any).ethereum)
     });
-    console.log("emailSignerAddress: ", emailSignerAddress);
+    setWalletClient(client);
 
-    const bytecode = await publicClient.getCode({
-      address: emailSignerAddress,
-    });
-    const isEmailSignerDeployed = !!bytecode;
-    console.log("Email signer contract deployed:", isEmailSignerDeployed);
+    addLog(`Connected to wallet: ${address}`);
+  };
 
-    if (!isEmailSignerDeployed) {
-      console.log("Deploying email signer contract...");
-      const deployTxHash = await walletClient.writeContract({
-        address: EMAIL_SIGNER_FACTORY_ADDRESS,
-        abi: emailSignerFactoryAbi,
-        functionName: "deploy",
-        args: [accountSalt],
-      });
-      await publicClient.waitForTransactionReceipt({ hash: deployTxHash });
-      console.log("Email signer contract deployed successfully");
-    } else {
-      console.log("Email signer contract already deployed");
+  const handleWalletDisconnect = () => {
+    setWalletAddress(null);
+    setIsWalletConnected(false);
+    setWalletClient(null);
+    addLog("Wallet disconnected");
+  };
+
+  // Registration flow components
+  const registrationContent = (
+    <>
+      <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+        <div className="h-full">
+          <WalletConnect
+            onConnect={handleWalletConnect}
+            onDisconnect={handleWalletDisconnect}
+            isConnected={isWalletConnected}
+            address={walletAddress}
+          />
+        </div>
+      </div>
+    </>
+  );
+
+  // Create tabs configuration
+  const tabs = [
+    {
+      id: 'registration',
+      label: 'Register',
+      content: registrationContent
+    },
+    {
+      id: 'approveHash',
+      label: 'Approve Hash',
+      content: (
+        <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+          <div className="h-full">
+            <HashApproval
+              email={email}
+              setEmail={setEmail}
+              accountCode={accountCode}
+              setAccountCode={setAccountCode}
+              walletClient={walletClient}
+              walletAddress={walletAddress}
+            />
+          </div>
+        </div>
+      )
     }
-
-    setEmailSignerAddress(emailSignerAddress);
-  };
+  ];
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1>Email Signer</h1>
-        <p>Email Signer Address: {emailSignerAddress}</p>
-        <form action={() => getOrDeployEmailSigner(email)}>
-          <input
-            type="text"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button type="submit">Generate email signer</button>
-        </form>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
-    </div>
+    <main className="min-h-screen p-2 md:p-6 max-w-6xl mx-auto">
+      <header className="mb-4">
+        <h1 className="text-3xl font-bold">Email Signer</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+          Deploy and manage your email signer accounts
+        </p>
+      </header>
+
+      <TabInterface tabs={tabs} defaultTabId="registration" />
+    </main>
   );
 }
