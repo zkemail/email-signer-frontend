@@ -12,19 +12,19 @@ import {
   RELAYER_URL,
   RPC_URL,
 } from "./config";
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { useState } from "react";
 import { privateKeyToAccount } from "viem/accounts";
 import { buildPoseidon } from "circomlibjs";
 
 const account = privateKeyToAccount(DEPLOYER_PRIVATE_KEY);
 const publicClient = createPublicClient({
-  chain: baseSepolia,
+  chain: sepolia,
   transport: http(RPC_URL),
 });
 const walletClient = createWalletClient({
   account,
-  chain: baseSepolia,
+  chain: sepolia,
   transport: http(RPC_URL),
 });
 
