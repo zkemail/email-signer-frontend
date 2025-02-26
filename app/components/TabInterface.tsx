@@ -23,8 +23,8 @@ export default function TabInterface({ tabs, defaultTabId }: TabInterfaceProps) 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`py-3 px-4 text-sm font-medium rounded-t-lg ${activeTab === tab.id
-                                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-t border-l border-r border-gray-200 dark:border-gray-700'
-                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-t border-l border-r border-gray-200 dark:border-gray-700'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                                 }`}
                             aria-current={activeTab === tab.id ? 'page' : undefined}
                         >

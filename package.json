@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@safe-global/protocol-kit": "^5.2.4",
+    "@safe-global/types-kit": "^1.0.4",
     "circomlibjs": "^0.1.7",
     "next": "15.1.7",
     "react": "^19.0.0",

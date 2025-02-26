@@ -7,6 +7,7 @@ import {
   http,
   parseAbi,
 } from "viem";
+import React, { useState, useEffect } from "react";
 import {
   EMAIL_SIGNER_FACTORY_ADDRESS,
   RELAYER_URL,
@@ -14,7 +15,6 @@ import {
   BACKEND_URL,
 } from "./config";
 import { sepolia } from "viem/chains";
-import { useState, useEffect } from "react";
 import { buildPoseidon } from "circomlibjs";
 import HashApproval from './components/HashApproval';
 import TabInterface from './components/TabInterface';
@@ -51,7 +51,7 @@ export default function Home() {
     // Create wallet client using the connected MetaMask
     const client = createWalletClient({
       chain: sepolia,
-      transport: custom(window.ethereum)
+      transport: custom((window as any).ethereum)
     });
     setWalletClient(client);
 
@@ -66,9 +66,12 @@ export default function Home() {
   };
 
   const generateAccountCode = async () => {
-    const poseidon = await buildPoseidon();
-    const accountCodeBytes: Uint8Array = poseidon.F.random();
-    return bytesToHex(accountCodeBytes.reverse());
+    // Create a new array with exactly 32 random bytes
+    const randomBytes = new Uint8Array(32);
+    crypto.getRandomValues(randomBytes);
+
+    // Convert to hex with 0x prefix
+    return bytesToHex(randomBytes);
   };
 
   const checkExistingAccountCode = (email: string) => {
@@ -77,8 +80,19 @@ export default function Home() {
       if (storedAccounts) {
         const accounts = JSON.parse(storedAccounts) as Record<string, string>;
         if (accounts[email]) {
-          setExistingAccountCode(accounts[email]);
-          return accounts[email];
+          // Validate that the account code starts with 0x
+          const code = accounts[email];
+          console.log(`this is the code: ${code}`);
+          if (code.startsWith('0x')) {
+            console.log(`Found existing account code for ${email}: ${code}`);
+            setExistingAccountCode(code);
+            return code;
+          } else {
+            // If invalid format, delete it from localStorage
+            delete accounts[email];
+            localStorage.setItem('accountCodes', JSON.stringify(accounts));
+            return null;
+          }
         }
       }
       return null;
@@ -186,40 +200,11 @@ export default function Home() {
     }
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isWalletConnected) {
-      addLog("Please connect your wallet first");
-      return;
-    }
-
-    const existing = checkExistingAccountCode(email);
-
-    if (existing) {
-      setShowConfirmation(true);
-    } else {
-      getOrDeployEmailSigner(email);
-    }
-  };
-
-  const useExistingAccountCode = () => {
-    if (existingAccountCode) {
-      getOrDeployEmailSigner(email, existingAccountCode);
-      setShowConfirmation(false);
-    }
-  };
-
-  const createNewAccountCode = () => {
-    getOrDeployEmailSigner(email);
-    setShowConfirmation(false);
-  };
-
   // Registration flow components
   const registrationContent = (
     <>
-      <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
-        <div className="mb-6">
+      <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+        <div className="h-full">
           <WalletConnect
             onConnect={handleWalletConnect}
             onDisconnect={handleWalletDisconnect}
@@ -227,89 +212,7 @@ export default function Home() {
             address={walletAddress}
           />
         </div>
-
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleEmailSubmit(e);
-          }}
-        >
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email-reg" className="text-sm font-medium">Email Address</label>
-            <input
-              id="email-reg"
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700"
-              placeholder="Enter your email address"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading || !isWalletConnected}
-            className={`p-2 rounded-md text-white font-medium ${isLoading || !isWalletConnected
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-              }`}
-          >
-            {isLoading ? "Processing..." : "Generate Email Signer"}
-          </button>
-        </form>
       </div>
-
-      {emailSignerAddress && (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mt-6">
-          <h2 className="text-xl font-semibold mb-2">Email Signer Address</h2>
-          <div className="p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm break-all">
-            {emailSignerAddress}
-          </div>
-        </div>
-      )}
-
-      {logs.length > 0 && (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mt-6">
-          <h2 className="text-xl font-semibold mb-2">Logs</h2>
-          <div className="h-64 overflow-y-auto p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm">
-            {logs.map((log, index) => (
-              <div key={index} className="py-1">
-                {log.startsWith("Error") ? (
-                  <span className="text-red-600 dark:text-red-400">{log}</span>
-                ) : log.includes("successfully") ? (
-                  <span className="text-green-600 dark:text-green-400">{log}</span>
-                ) : (
-                  <span>{log}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {showConfirmation && (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mt-6">
-          <p className="mb-2">An existing account code was found for this email.</p>
-          <p className="font-mono text-sm mb-4">Account code: {existingAccountCode}</p>
-          <div className="flex gap-3">
-            <button
-              onClick={useExistingAccountCode}
-              className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-            >
-              Use Existing Account
-            </button>
-            <button
-              onClick={createNewAccountCode}
-              className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
-            >
-              Create New Account
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 
@@ -324,8 +227,8 @@ export default function Home() {
       id: 'approveHash',
       label: 'Approve Hash',
       content: (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
-          <div className="mb-6">
+        <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+          <div className="h-full">
             <WalletConnect
               onConnect={handleWalletConnect}
               onDisconnect={handleWalletDisconnect}
@@ -345,15 +248,15 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen p-4 md:p-12 max-w-5xl mx-auto">
-      <header className="mb-8">
+    <main className="min-h-screen p-2 md:p-6 max-w-6xl mx-auto">
+      <header className="mb-4">
         <h1 className="text-3xl font-bold">Email Signer</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Deploy and manage your email signer accounts
         </p>
       </header>
 
-      <TabInterface tabs={tabs} />
+      <TabInterface tabs={tabs} defaultTabId="registration" />
     </main>
   );
 }
