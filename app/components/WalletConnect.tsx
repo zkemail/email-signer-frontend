@@ -287,17 +287,7 @@ export default function WalletConnect({
 
         try {
             addLog("Setting up Safe account...");
-
-            // Check if we already have a Safe for this wallet+email combination
-            const safeKey = `${address}_${email}`;
-            const savedSafes = localStorage.getItem('userSafes');
-            const userSafes = savedSafes ? JSON.parse(savedSafes) : {};
-
-            if (userSafes[safeKey]) {
-                addLog(`Found existing Safe: ${userSafes[safeKey]}`);
-                setSafeAddress(userSafes[safeKey]);
-                return userSafes[safeKey];
-            }
+            console.log("Setting up Safe account...", emailSignerAddress);
 
             // Config for Safe deployment - 2/2 multisig with wallet and email signer
             const safeAccountConfig: SafeAccountConfig = {
@@ -352,10 +342,8 @@ export default function WalletConnect({
                 const deployedSafeAddress = getSafeAddressFromDeploymentTx(txReceipt, safeVersion);
                 addLog(`Safe deployed at: ${deployedSafeAddress}`);
 
-                // Save Safe address to state and localStorage
+                // Save Safe address to state
                 setSafeAddress(deployedSafeAddress);
-                const updatedSafes = { ...userSafes, [safeKey]: deployedSafeAddress };
-                localStorage.setItem('userSafes', JSON.stringify(updatedSafes));
 
                 // Fund the Safe with a small amount of ETH
                 addLog("Funding Safe with initial ETH...");
@@ -374,8 +362,6 @@ export default function WalletConnect({
                 // Safe already deployed
                 addLog(`Using existing Safe at: ${predictedSafeAddress}`);
                 setSafeAddress(predictedSafeAddress);
-                const updatedSafes = { ...userSafes, [safeKey]: predictedSafeAddress };
-                localStorage.setItem('userSafes', JSON.stringify(updatedSafes));
                 return predictedSafeAddress;
             }
         } catch (error) {

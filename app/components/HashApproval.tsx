@@ -187,6 +187,32 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
         }
     };
 
+    const getDkimContractAddress = async (signerAddress: string) => {
+        if (!publicClient) {
+            throw new Error("Public client not initialized");
+        }
+
+        try {
+            addLog("Getting DKIM contract address...");
+            const dkimContractAbi = parseAbi([
+                "function dkimRegistryAddr() view returns (address)"
+            ]);
+
+            const dkimRegistryAddress = await publicClient.readContract({
+                address: signerAddress as `0x${string}`,
+                abi: dkimContractAbi,
+                functionName: "dkimRegistryAddr"
+            });
+
+            addLog(`DKIM registry address: ${dkimRegistryAddress}`);
+            return dkimRegistryAddress;
+        } catch (error) {
+            console.error('Error getting DKIM contract address:', error);
+            addLog(`Error getting DKIM contract address: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+
     const requestSignature = async () => {
         addLog("Requesting email signature...");
 
@@ -197,13 +223,15 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
         try {
             // Get template ID from contract
             const templateId = await getTemplateId(emailSignerAddress);
-
+            const dkimRegistryAddress = await getDkimContractAddress(emailSignerAddress);
             const response = await fetch(`${RELAYER_URL}/api/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    dkimContractAddress: dkimRegistryAddress,
+                    chain: "sepolia",
                     accountCode,
                     codeExistsInEmail: true,
                     commandTemplate: 'signHash {uint}',
