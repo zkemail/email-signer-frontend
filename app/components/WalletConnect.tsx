@@ -7,6 +7,7 @@ import {
   parseAbi,
   WalletClient,
   PublicClient,
+  bytesToHex,
 } from "viem";
 import { sepolia } from "viem/chains";
 import Safe, {
@@ -15,6 +16,7 @@ import Safe, {
 } from "@safe-global/protocol-kit";
 import { SafeVersion } from "@safe-global/types-kit";
 import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
+import { buildPoseidon } from "circomlibjs";
 
 interface WalletConnectProps {
   onConnect: (address: string, walletClient: WalletClient) => void;
@@ -170,7 +172,7 @@ export default function WalletConnect({
       }
 
       // No existing account code, generate new one
-      generateNewAccountCode();
+      await generateNewAccountCode();
       setCurrentStep("accountCode");
     } catch (error) {
       console.error("Error checking for account code:", error);
@@ -181,17 +183,10 @@ export default function WalletConnect({
   };
 
   // Generate a new account code
-  const generateNewAccountCode = () => {
-    // Generate 32 random bytes and convert to hex string
-    const randomBytes = new Uint8Array(32);
-    crypto.getRandomValues(randomBytes);
-    // Set first byte to 0
-    randomBytes[0] = 0;
-    const newCode =
-      "0x" +
-      Array.from(randomBytes)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+  const generateNewAccountCode = async () => {
+    const poseidon = await buildPoseidon();
+    const accountCodeBytes: Uint8Array = poseidon.F.random();
+    const newCode = bytesToHex(accountCodeBytes.reverse());
     setAccountCode(newCode);
     addLog(`Generated new account code: ${newCode}`);
 
@@ -224,8 +219,8 @@ export default function WalletConnect({
   };
 
   // Create new account code instead of using existing
-  const createNewAccountCodeInstead = () => {
-    generateNewAccountCode();
+  const createNewAccountCodeInstead = async () => {
+    await generateNewAccountCode();
     setShowAccountCodeConfirmation(false);
     setCurrentStep("accountCode");
   };
