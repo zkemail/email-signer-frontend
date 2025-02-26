@@ -5,6 +5,8 @@ import {
   createPublicClient,
   http,
   parseAbi,
+  WalletClient,
+  PublicClient,
 } from "viem";
 import { sepolia } from "viem/chains";
 import Safe, {
@@ -15,8 +17,7 @@ import { SafeVersion } from "@safe-global/types-kit";
 import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
 
 interface WalletConnectProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onConnect: (address: string, walletClient: any) => void;
+  onConnect: (address: string, walletClient: WalletClient) => void;
   onDisconnect: () => void;
   isConnected: boolean;
   address: string | null;
@@ -31,12 +32,9 @@ export default function WalletConnect({
   address,
 }: WalletConnectProps) {
   // Core state
-  const [isMetamaskInstalled, setIsMetamaskInstalled] =
-    useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [publicClient, setPublicClient] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [walletClient, setWalletClient] = useState<any>(null);
+  const [isMetamaskInstalled, setIsMetamaskInstalled] = useState(false);
+  const [publicClient, setPublicClient] = useState<PublicClient>();
+  const [walletClient, setWalletClient] = useState<WalletClient>();
   const [currentStep, setCurrentStep] = useState<Step>("connect");
 
   // User data
@@ -234,7 +232,7 @@ export default function WalletConnect({
 
   // Get or deploy email signer
   const getOrDeployEmailSigner = async () => {
-    if (!email || !accountCode || !address || !walletClient) {
+    if (!email || !accountCode || !address || !walletClient || !publicClient) {
       setError("Missing required information");
       return null;
     }
@@ -292,6 +290,7 @@ export default function WalletConnect({
           functionName: "deploy",
           args: [accountSalt],
           account: address as `0x${string}`,
+          chain: sepolia,
         });
 
         addLog(`Deployment transaction hash: ${txHash}`);
@@ -309,7 +308,7 @@ export default function WalletConnect({
 
   // Deploy Safe with email signer
   const deployMultiSigSafe = async (emailSignerAddress: string) => {
-    if (!address || !emailSignerAddress || !walletClient) {
+    if (!address || !emailSignerAddress || !walletClient || !publicClient) {
       throw new Error("Missing required information");
     }
 
@@ -361,6 +360,7 @@ export default function WalletConnect({
           value: BigInt(deploymentTransaction.value || 0),
           data: deploymentTransaction.data as `0x${string}`,
           account: address as `0x${string}`,
+          chain: sepolia,
         });
 
         addLog(`Safe deployment transaction hash: ${txHash}`);

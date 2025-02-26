@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { RELAYER_URL, RPC_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
-import { encodeAbiParameters, createPublicClient, http, parseAbi } from "viem";
+import {
+  encodeAbiParameters,
+  createPublicClient,
+  http,
+  parseAbi,
+  WalletClient,
+  PublicClient,
+} from "viem";
 import { sepolia } from "viem/chains";
 
 interface HashApprovalProps {
@@ -8,9 +15,8 @@ interface HashApprovalProps {
   setEmail: (email: string) => void;
   accountCode: string;
   setAccountCode: (code: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  walletClient?: any;
-  walletAddress?: string | null;
+  walletClient?: WalletClient;
+  walletAddress?: string;
 }
 
 export default function HashApproval({
@@ -27,19 +33,16 @@ export default function HashApproval({
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
-  } | null>(null);
+  }>();
   const [hasAccountCode, setHasAccountCode] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [proofId, setProofId] = useState<string | null>(null);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
-    null
-  );
-  const [emailSignerAddress, setEmailSignerAddress] = useState<string | null>(
-    null
-  );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [publicClient, setPublicClient] = useState<any>(null);
+  const [proofId, setProofId] = useState<string>();
+  const [pollingInterval, setPollingInterval] = useState<
+    NodeJS.Timeout | undefined
+  >();
+  const [emailSignerAddress, setEmailSignerAddress] = useState<string>();
+  const [publicClient, setPublicClient] = useState<PublicClient>();
 
   // Initialize public client
   useEffect(() => {
@@ -313,7 +316,7 @@ export default function HashApproval({
         if (retries >= maxRetries) {
           addLog("Timed out waiting for email proof");
           clearInterval(interval);
-          setPollingInterval(null);
+          setPollingInterval(undefined);
           setIsLoading(false);
           return;
         }
@@ -339,7 +342,7 @@ export default function HashApproval({
         if (status.response) {
           addLog("Email proof received!");
           clearInterval(interval);
-          setPollingInterval(null);
+          setPollingInterval(undefined);
 
           // Process the proof
           const signature = encodeAbiParameters(
@@ -382,6 +385,10 @@ export default function HashApproval({
           // Approve the hash using the email signer
           addLog("Approving hash with email signer...");
           try {
+            if (!publicClient) {
+              throw new Error("Public client not initialized");
+            }
+
             if (!walletClient) {
               throw new Error("Wallet not connected");
             }
@@ -408,6 +415,7 @@ export default function HashApproval({
               functionName: "approveHash",
               args: [hashToApprove, signature, safeAddress],
               account: walletAddress as `0x${string}`,
+              chain: sepolia,
             });
 
             addLog(`Approval transaction hash: ${txHash}`);
@@ -479,7 +487,7 @@ export default function HashApproval({
     }
 
     setIsLoading(true);
-    setResult(null);
+    setResult(undefined);
     setLogs([]);
 
     try {

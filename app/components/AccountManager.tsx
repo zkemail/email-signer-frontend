@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type AccountData = {
   email: string;
@@ -15,6 +15,17 @@ export default function AccountManager() {
   );
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Generate a new account code
+  const createNewAccountCode = useCallback(() => {
+    // Generate a random account code (you can replace with your own logic)
+    const newCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    setAccountCode(newCode);
+
+    if (email) {
+      saveAccountCode(email, newCode);
+    }
+  }, [email]);
 
   // Check localStorage when email changes
   useEffect(() => {
@@ -48,18 +59,7 @@ export default function AccountManager() {
     if (!hasExisting) {
       createNewAccountCode();
     }
-  }, [email]);
-
-  // Generate a new account code
-  const createNewAccountCode = () => {
-    // Generate a random account code (you can replace with your own logic)
-    const newCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    setAccountCode(newCode);
-
-    if (email) {
-      saveAccountCode(email, newCode);
-    }
-  };
+  }, [createNewAccountCode, email]);
 
   // Save account code to localStorage
   const saveAccountCode = (email: string, code: string) => {
