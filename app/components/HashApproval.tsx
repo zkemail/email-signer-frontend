@@ -26,6 +26,20 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
                 if (accounts[email]) {
                     setAccountCode(accounts[email]);
                     setHasAccountCode(true);
+
+                    // Also check if there's a Safe address for this email
+                    const savedSafes = localStorage.getItem('userSafes');
+                    if (savedSafes) {
+                        const userSafes = JSON.parse(savedSafes);
+                        const safeKey = `${email}`;
+                        // Try both formats - with wallet address and without
+                        Object.keys(userSafes).forEach(key => {
+                            if (key === safeKey || key.endsWith(`_${email}`)) {
+                                setSafeAddress(userSafes[key]);
+                            }
+                        });
+                    }
+
                     return;
                 }
             }
@@ -124,6 +138,24 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
                     />
                 </div>
 
+                {hasAccountCode && (
+                    <div>
+                        <label htmlFor="accountCode" className="block text-sm font-medium mb-1">
+                            Account Code
+                        </label>
+                        <input
+                            type="text"
+                            id="accountCode"
+                            value={accountCode}
+                            onChange={(e) => setAccountCode(e.target.value)}
+                            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-slate-700"
+                            placeholder="Account Code"
+                            required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Auto-loaded from your account. Edit if needed.</p>
+                    </div>
+                )}
+
                 <div>
                     <label htmlFor="safeAddress" className="block text-sm font-medium mb-1">
                         Safe Address
@@ -137,6 +169,9 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
                         placeholder="0x..."
                         required
                     />
+                    {safeAddress && (
+                        <p className="text-xs text-gray-500 mt-1">Auto-loaded from your account. Edit if needed.</p>
+                    )}
                 </div>
 
                 <div>
@@ -158,8 +193,8 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
                     type="submit"
                     disabled={isLoading || !hasAccountCode}
                     className={`w-full py-2 px-4 rounded-md text-white font-medium ${isLoading || !hasAccountCode
-                            ? 'bg-blue-400 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700'
+                        ? 'bg-blue-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
                         }`}
                 >
                     {isLoading ? 'Processing...' : 'Approve Hash'}
@@ -169,8 +204,8 @@ export default function HashApproval({ email, setEmail, accountCode, setAccountC
             {result && (
                 <div
                     className={`mt-4 p-3 rounded-md ${result.success
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         }`}
                 >
                     {result.message}
