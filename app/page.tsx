@@ -3,30 +3,25 @@ import {
   bytesToHex,
   createPublicClient,
   createWalletClient,
+  custom,
   http,
   parseAbi,
 } from "viem";
 import {
-  DEPLOYER_PRIVATE_KEY,
   EMAIL_SIGNER_FACTORY_ADDRESS,
   RELAYER_URL,
   RPC_URL,
   BACKEND_URL,
 } from "./config";
 import { sepolia } from "viem/chains";
-import { useState } from "react";
-import { privateKeyToAccount } from "viem/accounts";
+import { useState, useEffect } from "react";
 import { buildPoseidon } from "circomlibjs";
 import HashApproval from './components/HashApproval';
 import TabInterface from './components/TabInterface';
+import WalletConnect from './components/WalletConnect';
 
-const account = privateKeyToAccount(DEPLOYER_PRIVATE_KEY);
+// Set up public client without wallet
 const publicClient = createPublicClient({
-  chain: sepolia,
-  transport: http(RPC_URL),
-});
-const walletClient = createWalletClient({
-  account,
   chain: sepolia,
   transport: http(RPC_URL),
 });
@@ -40,8 +35,34 @@ export default function Home() {
   const [existingAccountCode, setExistingAccountCode] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // Add wallet connection state
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [walletClient, setWalletClient] = useState<any>(null);
+
   const addLog = (message: string) => {
     setLogs((prevLogs) => [...prevLogs, message]);
+  };
+
+  const handleWalletConnect = (address: string) => {
+    setWalletAddress(address);
+    setIsWalletConnected(true);
+
+    // Create wallet client using the connected MetaMask
+    const client = createWalletClient({
+      chain: sepolia,
+      transport: custom(window.ethereum)
+    });
+    setWalletClient(client);
+
+    addLog(`Connected to wallet: ${address}`);
+  };
+
+  const handleWalletDisconnect = () => {
+    setWalletAddress(null);
+    setIsWalletConnected(false);
+    setWalletClient(null);
+    addLog("Wallet disconnected");
   };
 
   const generateAccountCode = async () => {
@@ -62,7 +83,6 @@ export default function Home() {
       }
       return null;
     } catch (error) {
-      console.error('Error checking local storage:', error);
       return null;
     }
   };
@@ -81,6 +101,11 @@ export default function Home() {
   const getOrDeployEmailSigner = async (email: string, userProvidedAccountCode?: string) => {
     if (!email) {
       addLog("Error: Email is required");
+      return;
+    }
+
+    if (!isWalletConnected || !walletClient) {
+      addLog("Error: Please connect your wallet first");
       return;
     }
 
@@ -134,12 +159,16 @@ export default function Home() {
 
       if (!isEmailSignerDeployed) {
         addLog("Deploying email signer contract...");
+
+        // Use the connected wallet client instead of the hardcoded one
         const deployTxHash = await walletClient.writeContract({
           address: EMAIL_SIGNER_FACTORY_ADDRESS,
           abi: emailSignerFactoryAbi,
           functionName: "deploy",
           args: [accountSalt],
+          account: walletAddress,
         });
+
         addLog(`Deployment transaction hash: ${deployTxHash}`);
 
         addLog("Waiting for transaction confirmation...");
@@ -159,6 +188,11 @@ export default function Home() {
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isWalletConnected) {
+      addLog("Please connect your wallet first");
+      return;
+    }
 
     const existing = checkExistingAccountCode(email);
 
@@ -185,6 +219,15 @@ export default function Home() {
   const registrationContent = (
     <>
       <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+        <div className="mb-6">
+          <WalletConnect
+            onConnect={handleWalletConnect}
+            onDisconnect={handleWalletDisconnect}
+            isConnected={isWalletConnected}
+            address={walletAddress}
+          />
+        </div>
+
         <form
           className="flex flex-col gap-4"
           onSubmit={(e) => {
@@ -208,8 +251,8 @@ export default function Home() {
 
           <button
             type="submit"
-            disabled={isLoading}
-            className={`p-2 rounded-md text-white font-medium ${isLoading
+            disabled={isLoading || !isWalletConnected}
+            className={`p-2 rounded-md text-white font-medium ${isLoading || !isWalletConnected
               ? "bg-blue-400 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
               }`}
@@ -274,14 +317,22 @@ export default function Home() {
   const tabs = [
     {
       id: 'registration',
-      label: 'Email Signer Registration',
-      content: registrationContent,
+      label: 'Register',
+      content: registrationContent
     },
     {
-      id: 'approval',
+      id: 'approveHash',
       label: 'Approve Hash',
       content: (
         <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+          <div className="mb-6">
+            <WalletConnect
+              onConnect={handleWalletConnect}
+              onDisconnect={handleWalletDisconnect}
+              isConnected={isWalletConnected}
+              address={walletAddress}
+            />
+          </div>
           <HashApproval
             email={email}
             setEmail={setEmail}
@@ -289,23 +340,20 @@ export default function Home() {
             setAccountCode={setAccountCode}
           />
         </div>
-      ),
-    },
+      )
+    }
   ];
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-6 gap-8 bg-slate-50 dark:bg-slate-900">
-      <header className="w-full max-w-3xl py-4">
-        <h1 className="text-3xl font-bold text-center text-blue-600 dark:text-blue-400">Email Signer</h1>
+    <main className="min-h-screen p-4 md:p-12 max-w-5xl mx-auto">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold">Email Signer</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Deploy and manage your email signer accounts
+        </p>
       </header>
 
-      <main className="flex flex-col w-full max-w-3xl gap-8 items-center">
-        <TabInterface tabs={tabs} />
-      </main>
-
-      <footer className="w-full max-w-3xl py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        Email Signer Interface
-      </footer>
-    </div>
+      <TabInterface tabs={tabs} />
+    </main>
   );
 }
