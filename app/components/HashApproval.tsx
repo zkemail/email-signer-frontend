@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { RELAYER_URL, RPC_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
+import {
+  RELAYER_URL,
+  RPC_URL,
+  EMAIL_SIGNER_FACTORY_ADDRESS,
+  SAFE_TX_SERVICE_URL,
+  SAFE_TRUSTED_FOR_DELEGATE_CALL,
+} from "../config";
 import {
   encodeAbiParameters,
   createPublicClient,
@@ -9,6 +15,11 @@ import {
   PublicClient,
 } from "viem";
 import { sepolia } from "viem/chains";
+import {
+  OperationType,
+  SafeMultisigTransactionResponse,
+} from "@safe-global/types-kit";
+import SafeApiKit from "@safe-global/api-kit";
 
 interface HashApprovalProps {
   email: string;
@@ -254,6 +265,15 @@ export default function HashApproval({
     }
 
     try {
+      const apiKit = new SafeApiKit({
+        chainId: BigInt(sepolia.id),
+        txServiceUrl: SAFE_TX_SERVICE_URL,
+      });
+      const transaction = await apiKit.getTransaction(hashToApprove);
+      const warning = hasUntrustedDelegateCall(transaction)
+        ? "!!! Transaction includes an untrusted delegate call !!!"
+        : "";
+
       // Get template ID from contract
       const templateId = await getTemplateId(emailSignerAddress);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -275,7 +295,9 @@ export default function HashApproval({
           templateId: templateId, // Use the retrieved template ID
           emailAddress: email,
           subject: "Safe Transaction Signature Request",
-          body: `Please sign the safe transaction with hash: ${hashToApprove}`,
+          body: `${
+            warning + " "
+          }Please sign the safe transaction with hash: ${hashToApprove}`,
         }),
       });
 
@@ -298,6 +320,16 @@ export default function HashApproval({
       );
       throw error;
     }
+  };
+
+  const hasUntrustedDelegateCall = (
+    { operation, to }: SafeMultisigTransactionResponse,
+    trustedForDelegateCall: string[] = SAFE_TRUSTED_FOR_DELEGATE_CALL
+  ): boolean => {
+    return (
+      operation === OperationType.DelegateCall &&
+      !trustedForDelegateCall.includes(to)
+    );
   };
 
   const pollForProof = async (emailProofId: string) => {
