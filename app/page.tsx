@@ -1,5 +1,5 @@
 "use client";
-import { createWalletClient, custom } from "viem";
+import { createWalletClient, custom, WalletClient } from "viem";
 import React, { useState } from "react";
 import { sepolia } from "viem/chains";
 import HashApproval from "./components/HashApproval";
@@ -13,10 +13,9 @@ export default function Home() {
   const [accountCode, setAccountCode] = useState<string>("");
 
   // Add wallet connection state
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string>("");
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [walletClient, setWalletClient] = useState<any>(null);
+  const [walletClient, setWalletClient] = useState<WalletClient>();
 
   const addLog = (message: string) => {
     setLogs((prevLogs) => [...prevLogs, message]);
@@ -29,8 +28,7 @@ export default function Home() {
     // Create wallet client using the connected MetaMask
     const client = createWalletClient({
       chain: sepolia,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      transport: custom((window as any).ethereum),
+      transport: custom(window.ethereum),
     });
     setWalletClient(client);
 
@@ -38,34 +36,29 @@ export default function Home() {
   };
 
   const handleWalletDisconnect = () => {
-    setWalletAddress(null);
+    setWalletAddress("");
     setIsWalletConnected(false);
-    setWalletClient(null);
+    setWalletClient(undefined);
     addLog("Wallet disconnected");
   };
-
-  // Registration flow components
-  const registrationContent = (
-    <>
-      <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
-        <div className="h-full">
-          <WalletConnect
-            onConnect={handleWalletConnect}
-            onDisconnect={handleWalletDisconnect}
-            isConnected={isWalletConnected}
-            address={walletAddress}
-          />
-        </div>
-      </div>
-    </>
-  );
 
   // Create tabs configuration
   const tabs = [
     {
       id: "registration",
       label: "Register",
-      content: registrationContent,
+      content: (
+        <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+          <div className="h-full">
+            <WalletConnect
+              onConnect={handleWalletConnect}
+              onDisconnect={handleWalletDisconnect}
+              isConnected={isWalletConnected}
+              address={walletAddress}
+            />
+          </div>
+        </div>
+      ),
     },
     {
       id: "approveHash",

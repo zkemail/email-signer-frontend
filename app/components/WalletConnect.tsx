@@ -5,6 +5,9 @@ import {
   createPublicClient,
   http,
   parseAbi,
+  WalletClient,
+  PublicClient,
+  bytesToHex,
 } from "viem";
 import { sepolia } from "viem/chains";
 import Safe, {
@@ -13,10 +16,10 @@ import Safe, {
 } from "@safe-global/protocol-kit";
 import { SafeVersion } from "@safe-global/types-kit";
 import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
+import { buildPoseidon } from "circomlibjs";
 
 interface WalletConnectProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onConnect: (address: string, walletClient: any) => void;
+  onConnect: (address: string, walletClient: WalletClient) => void;
   onDisconnect: () => void;
   isConnected: boolean;
   address: string | null;
@@ -31,12 +34,9 @@ export default function WalletConnect({
   address,
 }: WalletConnectProps) {
   // Core state
-  const [isMetamaskInstalled, setIsMetamaskInstalled] =
-    useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [publicClient, setPublicClient] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [walletClient, setWalletClient] = useState<any>(null);
+  const [isMetamaskInstalled, setIsMetamaskInstalled] = useState(false);
+  const [publicClient, setPublicClient] = useState<PublicClient>();
+  const [walletClient, setWalletClient] = useState<WalletClient>();
   const [currentStep, setCurrentStep] = useState<Step>("connect");
 
   // User data
@@ -172,7 +172,7 @@ export default function WalletConnect({
       }
 
       // No existing account code, generate new one
-      generateNewAccountCode();
+      await generateNewAccountCode();
       setCurrentStep("accountCode");
     } catch (error) {
       console.error("Error checking for account code:", error);
@@ -183,17 +183,10 @@ export default function WalletConnect({
   };
 
   // Generate a new account code
-  const generateNewAccountCode = () => {
-    // Generate 32 random bytes and convert to hex string
-    const randomBytes = new Uint8Array(32);
-    crypto.getRandomValues(randomBytes);
-    // Set first byte to 0
-    randomBytes[0] = 0;
-    const newCode =
-      "0x" +
-      Array.from(randomBytes)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+  const generateNewAccountCode = async () => {
+    const poseidon = await buildPoseidon();
+    const accountCodeBytes: Uint8Array = poseidon.F.random();
+    const newCode = bytesToHex(accountCodeBytes.reverse());
     setAccountCode(newCode);
     addLog(`Generated new account code: ${newCode}`);
 
@@ -226,15 +219,15 @@ export default function WalletConnect({
   };
 
   // Create new account code instead of using existing
-  const createNewAccountCodeInstead = () => {
-    generateNewAccountCode();
+  const createNewAccountCodeInstead = async () => {
+    await generateNewAccountCode();
     setShowAccountCodeConfirmation(false);
     setCurrentStep("accountCode");
   };
 
   // Get or deploy email signer
   const getOrDeployEmailSigner = async () => {
-    if (!email || !accountCode || !address || !walletClient) {
+    if (!email || !accountCode || !address || !walletClient || !publicClient) {
       setError("Missing required information");
       return null;
     }
@@ -292,6 +285,7 @@ export default function WalletConnect({
           functionName: "deploy",
           args: [accountSalt],
           account: address as `0x${string}`,
+          chain: sepolia,
         });
 
         addLog(`Deployment transaction hash: ${txHash}`);
@@ -309,7 +303,7 @@ export default function WalletConnect({
 
   // Deploy Safe with email signer
   const deployMultiSigSafe = async (emailSignerAddress: string) => {
-    if (!address || !emailSignerAddress || !walletClient) {
+    if (!address || !emailSignerAddress || !walletClient || !publicClient) {
       throw new Error("Missing required information");
     }
 
@@ -361,6 +355,7 @@ export default function WalletConnect({
           value: BigInt(deploymentTransaction.value || 0),
           data: deploymentTransaction.data as `0x${string}`,
           account: address as `0x${string}`,
+          chain: sepolia,
         });
 
         addLog(`Safe deployment transaction hash: ${txHash}`);
@@ -454,7 +449,7 @@ export default function WalletConnect({
             </button>
             <button
               onClick={createNewAccountCodeInstead}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
             >
               Create New
             </button>
@@ -477,7 +472,7 @@ export default function WalletConnect({
               onClick={connectWallet}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
               }`}
             >
               {isLoading ? "Connecting..." : "Connect Metamask"}
@@ -516,8 +511,8 @@ export default function WalletConnect({
                 disabled={isLoading || !email}
                 className={`w-full px-4 py-2 rounded-md text-white ${
                   isLoading || !email
-                    ? "bg-blue-400"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-green-400"
+                    : "bg-green-600 hover:bg-green-700"
                 }`}
               >
                 {isLoading ? "Processing..." : "Continue"}
@@ -543,7 +538,7 @@ export default function WalletConnect({
               onClick={startDeployment}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
               }`}
             >
               {isLoading ? "Processing..." : "Deploy Email Signer & Safe"}
@@ -557,7 +552,7 @@ export default function WalletConnect({
             <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
-                className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
+                className="animate-spin h-8 w-8 text-green-600 dark:text-green-400"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -627,7 +622,7 @@ export default function WalletConnect({
                   href={`https://sepolia.etherscan.io/address/${emailSignerAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline dark:text-blue-400 text-xs mt-1 inline-block"
+                  className="text-green-600 hover:underline dark:text-green-400 text-xs mt-1 inline-block"
                 >
                   View on Etherscan
                 </a>
@@ -642,7 +637,7 @@ export default function WalletConnect({
                   href={`https://sepolia.etherscan.io/address/${safeAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline dark:text-blue-400 text-xs mt-1 inline-block"
+                  className="text-green-600 hover:underline dark:text-green-400 text-xs mt-1 inline-block"
                 >
                   View on Etherscan
                 </a>
@@ -665,7 +660,7 @@ export default function WalletConnect({
                 setCurrentStep("email");
                 setLogs([]);
               }}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
             >
               Start Again
             </button>
@@ -685,7 +680,7 @@ export default function WalletConnect({
           href="https://metamask.io/download/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:underline dark:text-blue-400 mt-2 inline-block"
+          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block"
         >
           Download MetaMask
         </a>
@@ -737,7 +732,7 @@ export default function WalletConnect({
                     ["email", "accountCode", "deploying", "complete"].indexOf(
                       currentStep as Step
                     ) >= i
-                      ? "bg-blue-600 dark:bg-blue-400"
+                      ? "bg-green-600 dark:bg-green-400"
                       : "bg-gray-300 dark:bg-gray-600"
                   }`}
                 />
