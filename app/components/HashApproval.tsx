@@ -271,7 +271,7 @@ export default function HashApproval({
       });
       const transaction = await apiKit.getTransaction(hashToApprove);
       const warning = hasUntrustedDelegateCall(transaction)
-        ? "!!! Transaction includes an untrusted delegate call !!!"
+        ? "!!!!!!!! Transaction includes an untrusted delegate call !!!!!!!!"
         : "";
 
       // Get template ID from contract
