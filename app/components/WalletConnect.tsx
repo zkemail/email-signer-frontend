@@ -468,7 +468,25 @@ export default function WalletConnect({
         throw new Error("Failed to deploy Safe");
       }
 
-      // Step 3: Complete the setup
+      // Step 3: Register account with backend
+      const accountResponse = await fetch(
+        `http://localhost:3030/api/accounts/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            accountCode,
+            chainId: Number(sepolia.id),
+            safeAddress: safeAddr,
+          }),
+        }
+      );
+      if (!accountResponse.ok) {
+        throw new Error("Failed to register account with backend");
+      }
+
+      // Step 4: Complete the setup
       addLog("Setup completed successfully!");
       addLog(`Email Signer Address: ${signerAddress}`);
       addLog(`Safe Address: ${safeAddr}`);
