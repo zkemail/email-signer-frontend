@@ -79,8 +79,31 @@ export default function WalletConnect({
       setPublicClient(client);
     };
 
+    // Load email, account code, and safe address from local storage
+    const loadFromLocalStorage = () => {
+      const storedEmail = localStorage.getItem("emailAddress");
+      if (storedEmail) {
+        setEmail(storedEmail);
+        const storedAccounts = localStorage.getItem("accountCodes");
+        if (storedAccounts) {
+          const accounts = JSON.parse(storedAccounts) as Record<string, string>;
+          if (accounts[storedEmail]) {
+            setAccountCode(accounts[storedEmail]);
+          }
+        }
+        const storedSafes = localStorage.getItem("safeAddresses");
+        if (storedSafes) {
+          const safes = JSON.parse(storedSafes) as Record<string, string>;
+          if (safes[storedEmail]) {
+            setSafeAddress(safes[storedEmail]);
+          }
+        }
+      }
+    };
+
     checkMetamask();
     setupClient();
+    loadFromLocalStorage();
   }, []);
 
   // Add a log message
@@ -91,6 +114,16 @@ export default function WalletConnect({
 
   // Clear any error
   const clearError = () => setError(null);
+
+  // Save email address to localStorage
+  const saveEmailAddress = (email: string) => {
+    try {
+      localStorage.setItem("emailAddress", email);
+      addLog(`Saved email address: ${email}`);
+    } catch (error) {
+      console.error("Error saving email address to local storage:", error);
+    }
+  };
 
   // Connect wallet
   const connectWallet = async () => {
@@ -159,6 +192,9 @@ export default function WalletConnect({
       clearError();
       addLog(`Using email: ${email}`);
 
+      // Save email address to localStorage
+      saveEmailAddress(email);
+
       // Check if we have an account code for this email
       const storedAccounts = localStorage.getItem("accountCodes");
       if (storedAccounts) {
@@ -203,6 +239,19 @@ export default function WalletConnect({
       accounts[email] = code;
       localStorage.setItem("accountCodes", JSON.stringify(accounts));
       addLog(`Saved account code for ${email}`);
+    } catch (error) {
+      console.error("Error saving to local storage:", error);
+    }
+  };
+
+  // Save safe address to localStorage
+  const saveSafeAddress = (email: string, address: string) => {
+    try {
+      const storedAddresses = localStorage.getItem("safeAddresses");
+      const addresses = storedAddresses ? JSON.parse(storedAddresses) : {};
+      addresses[email] = address;
+      localStorage.setItem("safeAddresses", JSON.stringify(addresses));
+      addLog(`Saved Safe address: ${address}`);
     } catch (error) {
       console.error("Error saving to local storage:", error);
     }
@@ -371,14 +420,16 @@ export default function WalletConnect({
         );
         addLog(`Safe deployed at: ${deployedSafeAddress}`);
 
-        // Save Safe address to state
+        // Save Safe address to state and localStorage
         setSafeAddress(deployedSafeAddress);
+        saveSafeAddress(email, deployedSafeAddress);
 
         return deployedSafeAddress;
       } else {
         // Safe already deployed
         addLog(`Using existing Safe at: ${predictedSafeAddress}`);
         setSafeAddress(predictedSafeAddress);
+        saveSafeAddress(email, predictedSafeAddress);
         return predictedSafeAddress;
       }
     } catch (error) {

@@ -49,14 +49,38 @@ export default function HashApproval({
   const [emailSignerAddress, setEmailSignerAddress] = useState<string>();
   const [publicClient, setPublicClient] = useState<PublicClient>();
 
-  // Initialize public client
+  // Initialize public client and load from local storage
   useEffect(() => {
     const client = createPublicClient({
       chain: sepolia,
       transport: http(RPC_URL),
     });
     setPublicClient(client);
-  }, []);
+
+    // Load email, account code, and safe address from local storage
+    const loadFromLocalStorage = () => {
+      const storedEmail = localStorage.getItem("emailAddress");
+      if (storedEmail) {
+        setEmail(storedEmail);
+        const storedAccounts = localStorage.getItem("accountCodes");
+        if (storedAccounts) {
+          const accounts = JSON.parse(storedAccounts) as Record<string, string>;
+          if (accounts[storedEmail]) {
+            setAccountCode(accounts[storedEmail]);
+          }
+        }
+        const storedSafes = localStorage.getItem("safeAddresses");
+        if (storedSafes) {
+          const safes = JSON.parse(storedSafes) as Record<string, string>;
+          if (safes[storedEmail]) {
+            setSafeAddress(safes[storedEmail]);
+          }
+        }
+      }
+    };
+
+    loadFromLocalStorage();
+  }, [setAccountCode, setEmail]);
 
   // Get account salt and predict email signer address when email and account code are available
   useEffect(() => {
@@ -137,7 +161,7 @@ export default function HashApproval({
           setHasAccountCode(true);
 
           // Also check if there's a Safe address for this email
-          const savedSafes = localStorage.getItem("userSafes");
+          const savedSafes = localStorage.getItem("safeAddresses");
           if (savedSafes) {
             const userSafes = JSON.parse(savedSafes);
             const safeKey = `${email}`;
