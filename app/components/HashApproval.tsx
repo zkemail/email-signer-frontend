@@ -264,8 +264,8 @@ export default function HashApproval({
         txServiceUrl: "https://dev.sepolia2.transaction.keypersafe.xyz/api",
       });
       const transaction = await apiKit.getTransaction(hashToApprove);
-      const warning = hasUntrustedDelegateCall(transaction)
-        ? "!!!!!!!! Transaction includes an untrusted delegate call !!!!!!!!"
+      const warning = isDelegateCall(transaction)
+        ? "!!!!!!!!!!!! WARNING: transaction is a delegate call !!!!!!!!!!!!"
         : "";
 
       // Get template ID from contract
@@ -316,14 +316,9 @@ export default function HashApproval({
     }
   };
 
-  const hasUntrustedDelegateCall = (
-    { operation, to }: SafeMultisigTransactionResponse,
-    trustedForDelegateCall: string[] = []
-  ): boolean => {
-    return (
-      operation === OperationType.DelegateCall &&
-      !trustedForDelegateCall.includes(to)
-    );
+  // Check if the transaction is a delegate call
+  const isDelegateCall = (tx: SafeMultisigTransactionResponse): boolean => {
+    return tx.operation === OperationType.DelegateCall;
   };
 
   const pollForProof = async (emailProofId: string) => {
