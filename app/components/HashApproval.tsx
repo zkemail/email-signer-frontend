@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  RELAYER_URL,
-  RPC_URL,
-  EMAIL_SIGNER_FACTORY_ADDRESS,
-  SAFE_TX_SERVICE_URL,
-  SAFE_TRUSTED_FOR_DELEGATE_CALL,
-} from "../config";
+import { RELAYER_URL, RPC_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
 import {
   encodeAbiParameters,
   createPublicClient,
@@ -267,7 +261,7 @@ export default function HashApproval({
     try {
       const apiKit = new SafeApiKit({
         chainId: BigInt(sepolia.id),
-        txServiceUrl: SAFE_TX_SERVICE_URL,
+        txServiceUrl: "https://dev.sepolia2.transaction.keypersafe.xyz/api",
       });
       const transaction = await apiKit.getTransaction(hashToApprove);
       const warning = hasUntrustedDelegateCall(transaction)
@@ -324,7 +318,7 @@ export default function HashApproval({
 
   const hasUntrustedDelegateCall = (
     { operation, to }: SafeMultisigTransactionResponse,
-    trustedForDelegateCall: string[] = SAFE_TRUSTED_FOR_DELEGATE_CALL
+    trustedForDelegateCall: string[] = []
   ): boolean => {
     return (
       operation === OperationType.DelegateCall &&
