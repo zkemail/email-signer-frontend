@@ -9,6 +9,11 @@ import {
   PublicClient,
 } from "viem";
 import { sepolia } from "viem/chains";
+import {
+  OperationType,
+  SafeMultisigTransactionResponse,
+} from "@safe-global/types-kit";
+import SafeApiKit from "@safe-global/api-kit";
 
 interface HashApprovalProps {
   email: string;
@@ -254,6 +259,15 @@ export default function HashApproval({
     }
 
     try {
+      const apiKit = new SafeApiKit({
+        chainId: BigInt(sepolia.id),
+        txServiceUrl: "https://dev.sepolia2.transaction.keypersafe.xyz/api",
+      });
+      const transaction = await apiKit.getTransaction(hashToApprove);
+      const warning = isDelegateCall(transaction)
+        ? "!!!!!!!!!!!! WARNING: transaction is a delegate call !!!!!!!!!!!!"
+        : "";
+
       // Get template ID from contract
       const templateId = await getTemplateId(emailSignerAddress);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -275,7 +289,9 @@ export default function HashApproval({
           templateId: templateId, // Use the retrieved template ID
           emailAddress: email,
           subject: "Safe Transaction Signature Request",
-          body: `Please sign the safe transaction with hash: ${hashToApprove}`,
+          body: `${
+            warning + " "
+          }Please sign the safe transaction with hash: ${hashToApprove}`,
         }),
       });
 
@@ -298,6 +314,11 @@ export default function HashApproval({
       );
       throw error;
     }
+  };
+
+  // Check if the transaction is a delegate call
+  const isDelegateCall = (tx: SafeMultisigTransactionResponse): boolean => {
+    return tx.operation === OperationType.DelegateCall;
   };
 
   const pollForProof = async (emailProofId: string) => {
