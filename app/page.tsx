@@ -83,7 +83,7 @@ export default function Home() {
   return (
     <main className="min-h-screen p-2 md:p-6 max-w-6xl mx-auto">
       <header className="mb-4">
-        <h1 className="text-3xl font-bold">Email Signer</h1>
+        <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Deploy and manage your email signer accounts
         </p>

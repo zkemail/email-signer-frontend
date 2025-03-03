@@ -143,6 +143,12 @@ export default function WalletConnect({
       });
 
       if (accounts.length > 0) {
+        // Switch to Sepolia network
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: `0x${sepolia.id.toString(16)}` }],
+        });
+
         const newWalletClient = createWalletClient({
           chain: sepolia,
           transport: custom(window.ethereum),
