@@ -15,7 +15,7 @@ import Safe, {
   getSafeAddressFromDeploymentTx,
 } from "@safe-global/protocol-kit";
 import { SafeVersion } from "@safe-global/types-kit";
-import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
+import { RPC_URL, RELAYER_URL, BACKEND_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
 import { buildPoseidon } from "circomlibjs";
 
 interface WalletConnectProps {
@@ -470,7 +470,7 @@ export default function WalletConnect({
 
       // Step 3: Register account with backend
       const accountResponse = await fetch(
-        `http://localhost:3030/api/accounts/register`,
+        `${BACKEND_URL}/accounts/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

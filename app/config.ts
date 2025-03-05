@@ -8,6 +8,9 @@ if (!process.env.NEXT_PUBLIC_RPC_URL) {
 if (!process.env.NEXT_PUBLIC_RELAYER_URL) {
   throw new Error("RELAYER_URL environment variable is required");
 }
+if (!process.env.NEXT_PUBLIC_BACKEND_URL) {
+  throw new Error("BACKEND_URL environment variable is required");
+}
 if (!process.env.NEXT_PUBLIC_EMAIL_SIGNER_FACTORY_ADDRESS) {
   throw new Error(
     "EMAIL_SIGNER_FACTORY_ADDRESS environment variable is required"
@@ -18,7 +21,8 @@ if (!isHex(process.env.NEXT_PUBLIC_EMAIL_SIGNER_FACTORY_ADDRESS)) {
 }
 const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL;
 const RELAYER_URL = process.env.NEXT_PUBLIC_RELAYER_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const EMAIL_SIGNER_FACTORY_ADDRESS =
   process.env.NEXT_PUBLIC_EMAIL_SIGNER_FACTORY_ADDRESS;
 
-export { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS };
+export { RPC_URL, RELAYER_URL, BACKEND_URL, EMAIL_SIGNER_FACTORY_ADDRESS };
