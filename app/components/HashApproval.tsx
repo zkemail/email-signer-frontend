@@ -285,7 +285,6 @@ export default function HashApproval({
     try {
       const apiKit = new SafeApiKit({
         chainId: BigInt(sepolia.id),
-        txServiceUrl: "https://dev.sepolia2.transaction.keypersafe.xyz/api",
       });
       const transaction = await apiKit.getTransaction(hashToApprove);
       const warning = isDelegateCall(transaction)
