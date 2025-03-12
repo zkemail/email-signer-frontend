@@ -205,7 +205,7 @@ export default function HashApproval({
   const addLog = (message: string) => {
     setLogs((prev) => [
       ...prev,
-      `${new Date().toLocaleTimeString()}: ${message}`,
+      `<span class="text-[#606060]">${new Date().toLocaleTimeString()}:</span> <span class="text-[#A8A8A8]">${message}</span>`,
     ]);
   };
 
@@ -586,7 +586,7 @@ export default function HashApproval({
             id="email-approval"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
             placeholder="your@email.com"
             required
           />
@@ -605,7 +605,7 @@ export default function HashApproval({
               id="accountCode"
               value={accountCode}
               onChange={(e) => setAccountCode(e.target.value)}
-              className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
+              className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
               placeholder="Account Code"
               required
             />
@@ -627,7 +627,7 @@ export default function HashApproval({
             id="safeAddress"
             value={safeAddress}
             onChange={(e) => setSafeAddress(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
             placeholder="0x..."
             required
           />
@@ -650,7 +650,7 @@ export default function HashApproval({
             id="hashToApprove"
             value={hashToApprove}
             onChange={(e) => setHashToApprove(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
             placeholder="0x..."
             required
           />
@@ -659,24 +659,40 @@ export default function HashApproval({
         <button
           type="submit"
           disabled={isLoading || !hasAccountCode || !walletClient}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+          className={`w-full py-2 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 ${
             isLoading || !hasAccountCode || !walletClient
               ? "bg-green-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
+              : "bg-white text-black hover:bg-gray-100"
           }`}
         >
-          {isLoading ? "Processing..." : "Approve Hash"}
+          {isLoading ? (
+            "Processing..."
+          ) : (
+            <>
+              <img src="/checkFat.svg" alt="" className="w-5 h-5" />
+              Approve Hash
+            </>
+          )}
         </button>
       </form>
 
       {logs.length > 0 && (
-        <div className="mt-4 p-3 rounded-md bg-gray-100 dark:bg-gray-800 max-h-60 overflow-y-auto">
-          <h3 className="text-sm font-medium mb-2">Process Log:</h3>
-          <div className="space-y-1 text-xs font-mono">
-            {logs.map((log, index) => (
-              <div key={index}>{log}</div>
-            ))}
-          </div>
+        <div className="mt-4 p-3 rounded-[8px] border border-[#272727] bg-[#161819]">
+          <details className="cursor-pointer group">
+            <summary className="text-sm font-medium flex items-center justify-between">
+              <span>Process Log</span>
+              <img 
+                src="/chevron-up.svg" 
+                alt="Toggle" 
+                className="w-4 h-4 transition-transform group-open:rotate-180" 
+              />
+            </summary>
+            <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
+              {logs.map((log, index) => (
+                <div key={index} dangerouslySetInnerHTML={{ __html: log }}></div>
+              ))}
+            </div>
+          </details>
         </div>
       )}
 
