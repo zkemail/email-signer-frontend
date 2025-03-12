@@ -41,7 +41,7 @@ export default function Home() {
       id: "registration",
       label: "Register",
       content: (
-        <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+        <div className="w-full h-full rounded-lg shadow-md p-4 flex-1">
           <div className="h-full">
             <WalletConnect
               onConnect={handleWalletConnect}
@@ -57,7 +57,7 @@ export default function Home() {
       id: "approveHash",
       label: "Approve Hash",
       content: (
-        <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 flex-1">
+        <div className="w-full h-full rounded-lg shadow-md p-4 flex-1">
           <div className="h-full">
             <HashApproval
               email={email}
@@ -88,8 +88,10 @@ export default function Home() {
         </div>
       </header>
 
-      {!isWalletConnected ? (
-        <div className="w-full bg-[#111314] border border-[#272727] rounded-none rounded-b-[24px] p-4">
+      <div className="w-full bg-[#111314] border border-[#272727] rounded-none rounded-b-[24px] p-4">
+        {isWalletConnected ? (
+          <TabInterface tabs={tabs} defaultTabId="registration" />
+        ) : (
           <div className="w-full">
             <WalletConnect
               onConnect={handleWalletConnect}
@@ -98,10 +100,8 @@ export default function Home() {
               address={walletAddress}
             />
           </div>
-        </div>
-      ) : (
-        <TabInterface tabs={tabs} defaultTabId="registration" />
-      )}
+        )}
+      </div>
     </main>
   );
 }

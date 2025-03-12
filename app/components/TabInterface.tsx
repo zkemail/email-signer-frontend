@@ -19,23 +19,27 @@ export default function TabInterface({
 
   return (
     <div className="w-full">
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <nav className="flex space-x-2" aria-label="Tabs">
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex rounded-lg border border-[#272727]">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 text-sm font-medium rounded-t-lg ${
+              className={`py-2 px-6 text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? "bg-white dark:bg-slate-800 text-green-600 dark:text-green-400 border-t border-l border-r border-gray-200 dark:border-gray-700"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  ? "bg-white text-black"
+                  : "bg-transparent text-gray-400 hover:text-gray-200"
+              } ${
+                tab.id === tabs[0].id ? "rounded-l-lg" : ""
+              } ${
+                tab.id === tabs[tabs.length - 1].id ? "rounded-r-lg" : ""
               }`}
               aria-current={activeTab === tab.id ? "page" : undefined}
             >
               {tab.label}
             </button>
           ))}
-        </nav>
+        </div>
       </div>
 
       <div className="tab-content">

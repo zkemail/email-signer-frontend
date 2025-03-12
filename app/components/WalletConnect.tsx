@@ -491,7 +491,7 @@ export default function WalletConnect({
     // If showing account code confirmation dialog, render that
     if (showAccountCodeConfirmation) {
       return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+        <div className="rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-4">Account Code Found</h2>
           <p className="text-sm mb-4">
             We found an existing account code for this email address. Would you
@@ -545,7 +545,7 @@ export default function WalletConnect({
 
       case "email":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+          <div className="rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Enter Your Email</h2>
             <p className="text-sm mb-4">
               Provide your email address which will be used as the second
@@ -564,7 +564,7 @@ export default function WalletConnect({
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-slate-700"
                   placeholder="your@email.com"
                   required
                 />
@@ -586,7 +586,7 @@ export default function WalletConnect({
 
       case "accountCode":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+          <div className="rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Account Code</h2>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
               <p className="text-yellow-800 dark:text-yellow-300 text-sm font-medium">
@@ -611,7 +611,7 @@ export default function WalletConnect({
 
       case "deploying":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+          <div className="rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
@@ -651,7 +651,7 @@ export default function WalletConnect({
 
       case "complete":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+          <div className="rounded-lg p-4">
             <div className="mb-4 text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 mb-3">
                 <svg

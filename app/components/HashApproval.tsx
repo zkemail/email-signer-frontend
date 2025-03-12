@@ -586,7 +586,7 @@ export default function HashApproval({
             id="email-approval"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-slate-700"
+            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
             placeholder="your@email.com"
             required
           />
@@ -605,7 +605,7 @@ export default function HashApproval({
               id="accountCode"
               value={accountCode}
               onChange={(e) => setAccountCode(e.target.value)}
-              className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-slate-700"
+              className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
               placeholder="Account Code"
               required
             />
@@ -627,7 +627,7 @@ export default function HashApproval({
             id="safeAddress"
             value={safeAddress}
             onChange={(e) => setSafeAddress(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-slate-700"
+            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
             placeholder="0x..."
             required
           />
@@ -650,7 +650,7 @@ export default function HashApproval({
             id="hashToApprove"
             value={hashToApprove}
             onChange={(e) => setHashToApprove(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-slate-700"
+            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-slate-700"
             placeholder="0x..."
             required
           />
