@@ -81,10 +81,34 @@ export default function Home() {
           style={{ backgroundImage: "url('/bg-image.png')" }}
         ></div>
         <div className="relative z-10 p-6 bg-black/40 text-white h-full flex flex-col justify-end">
-          <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
-          <p className="text-gray-200 mt-1">
-            Deploy and manage your email signer accounts
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
+              <p className="text-gray-200 mt-1">
+                Deploy and manage your email signer accounts
+              </p>
+            </div>
+            
+            {/* Wallet connection status */}
+            {isWalletConnected && walletAddress && (
+              <div className="flex items-center bg-black/50 px-3 py-2 rounded-lg">
+                <div className="flex items-center mr-3">
+                  <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
+                  <span className="text-sm font-medium">
+                    {`${walletAddress.substring(0, 6)}...${walletAddress.substring(
+                      walletAddress.length - 4
+                    )}`}
+                  </span>
+                </div>
+                <button
+                  onClick={handleWalletDisconnect}
+                  className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

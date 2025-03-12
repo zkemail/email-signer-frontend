@@ -500,13 +500,13 @@ export default function WalletConnect({
           <div className="flex space-x-3">
             <button
               onClick={useExistingAccountCode}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
             >
               Use Existing
             </button>
             <button
               onClick={createNewAccountCodeInstead}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
             >
               Create New
             </button>
@@ -530,7 +530,7 @@ export default function WalletConnect({
               className={`w-full px-4 py-2 rounded-xl flex items-center justify-center ${
                 isLoading 
                   ? "bg-gray-200 text-gray-500" 
-                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
               }`}
             >
               <img 
@@ -572,10 +572,10 @@ export default function WalletConnect({
               <button
                 type="submit"
                 disabled={isLoading || !email}
-                className={`w-full px-4 py-2 rounded-md text-white ${
+                className={`w-full px-4 py-2 rounded-md ${
                   isLoading || !email
-                    ? "bg-green-400"
-                    : "bg-green-600 hover:bg-green-700"
+                    ? "bg-gray-200 text-gray-500"
+                    : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
                 }`}
               >
                 {isLoading ? "Processing..." : "Continue"}
@@ -600,8 +600,10 @@ export default function WalletConnect({
             <button
               onClick={startDeployment}
               disabled={isLoading}
-              className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+              className={`w-full px-4 py-2 rounded-md ${
+                isLoading 
+                  ? "bg-gray-200 text-gray-500" 
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
               }`}
             >
               {isLoading ? "Processing..." : "Deploy Email Signer & Safe"}
@@ -723,7 +725,7 @@ export default function WalletConnect({
                 setCurrentStep("email");
                 setLogs([]);
               }}
-              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="w-full px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
             >
               Start Again
             </button>
@@ -753,26 +755,6 @@ export default function WalletConnect({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Wallet connection status - only show when connected */}
-      {isConnected && address && (
-        <div className="flex justify-between items-center mb-4 p-3 bg-gray-100 dark:bg-slate-700 rounded-md w-full">
-          <div className="flex items-center">
-            <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
-            <span className="text-sm font-medium">
-              {`${address.substring(0, 6)}...${address.substring(
-                address.length - 4
-              )}`}
-            </span>
-          </div>
-          <button
-            onClick={disconnectWallet}
-            className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
-          >
-            Disconnect
-          </button>
-        </div>
-      )}
-
       {/* Main content */}
       <div className="w-full text-left flex-grow">
         {renderStepContent()}
