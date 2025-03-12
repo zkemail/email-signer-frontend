@@ -491,7 +491,7 @@ export default function WalletConnect({
     // If showing account code confirmation dialog, render that
     if (showAccountCodeConfirmation) {
       return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-4">Account Code Found</h2>
           <p className="text-sm mb-4">
             We found an existing account code for this email address. Would you
@@ -519,19 +519,25 @@ export default function WalletConnect({
     switch (currentStep) {
       case "connect":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Connect Your Wallet</h2>
             <p className="text-sm mb-4">
-              To get started, please connect your Ethereum wallet. This will be
-              one of the owners of your multisig Safe.
+              This will be one of the owners of your multisig Safe
             </p>
             <button
               onClick={connectWallet}
               disabled={isLoading}
-              className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+              className={`w-full px-4 py-2 rounded-xl flex items-center justify-center ${
+                isLoading 
+                  ? "bg-gray-200 text-gray-500" 
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
               }`}
             >
+              <img 
+                src="/metamask.svg" 
+                alt="Metamask" 
+                className="w-5 h-5 mr-2" 
+              />
               {isLoading ? "Connecting..." : "Connect Metamask"}
             </button>
           </div>
@@ -539,7 +545,7 @@ export default function WalletConnect({
 
       case "email":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Enter Your Email</h2>
             <p className="text-sm mb-4">
               Provide your email address which will be used as the second
@@ -580,7 +586,7 @@ export default function WalletConnect({
 
       case "accountCode":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Account Code</h2>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
               <p className="text-yellow-800 dark:text-yellow-300 text-sm font-medium">
@@ -605,7 +611,7 @@ export default function WalletConnect({
 
       case "deploying":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
@@ -645,7 +651,7 @@ export default function WalletConnect({
 
       case "complete":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
             <div className="mb-4 text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 mb-3">
                 <svg
@@ -729,7 +735,7 @@ export default function WalletConnect({
   // Metamask not installed case
   if (!isMetamaskInstalled) {
     return (
-      <div className="p-4 border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg">
+      <div className="p-4 border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg w-full text-left">
         <p className="text-yellow-800 dark:text-yellow-200">
           MetaMask is not installed. Please install it to use this application.
         </p>
@@ -746,10 +752,10 @@ export default function WalletConnect({
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {/* Wallet connection status - only show when connected */}
       {isConnected && address && (
-        <div className="flex justify-between items-center mb-4 p-3 bg-gray-100 dark:bg-slate-700 rounded-md">
+        <div className="flex justify-between items-center mb-4 p-3 bg-gray-100 dark:bg-slate-700 rounded-md w-full">
           <div className="flex items-center">
             <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
             <span className="text-sm font-medium">
@@ -768,18 +774,20 @@ export default function WalletConnect({
       )}
 
       {/* Main content */}
-      {renderStepContent()}
+      <div className="w-full text-left flex-grow">
+        {renderStepContent()}
+      </div>
 
       {/* Error display - centralized at the bottom */}
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 rounded-md">
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 rounded-md w-full">
           <p className="text-red-800 dark:text-red-300 text-sm">{error}</p>
         </div>
       )}
 
       {/* Step indicator */}
       {currentStep !== "connect" && (
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4 flex justify-center w-full">
           <div className="flex items-center space-x-2">
             {["email", "accountCode", "deploying", "complete"].map(
               (step, i) => (

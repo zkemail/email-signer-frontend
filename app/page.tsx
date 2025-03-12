@@ -74,7 +74,7 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen p-2 md:p-6 max-w-6xl mx-auto">
+    <main className="min-h-screen p-2 md:p-6 max-w-[768px] mx-auto">
       <header className="relative overflow-hidden rounded-t-2xl h-80">
         <div 
           className="absolute inset-0 bg-cover bg-center z-0" 
@@ -89,8 +89,8 @@ export default function Home() {
       </header>
 
       {!isWalletConnected ? (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-          <div className="max-w-md mx-auto">
+        <div className="w-full bg-[#111314] border border-[#272727] rounded-none rounded-b-[24px] p-4">
+          <div className="w-full">
             <WalletConnect
               onConnect={handleWalletConnect}
               onDisconnect={handleWalletDisconnect}
