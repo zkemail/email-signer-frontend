@@ -74,7 +74,7 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen p-2 md:p-6 max-w-[768px] mx-auto">
+    <main className="min-h-screen p-2 pt-[120px] md:p-6 md:pt-[160px] max-w-[768px] mx-auto">
       <header className="relative overflow-hidden rounded-t-2xl h-80">
         <div 
           className="absolute inset-0 bg-cover bg-center z-0" 

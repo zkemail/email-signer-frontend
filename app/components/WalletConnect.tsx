@@ -491,9 +491,9 @@ export default function WalletConnect({
     // If showing account code confirmation dialog, render that
     if (showAccountCodeConfirmation) {
       return (
-        <div className="rounded-lg p-4">
-          <h2 className="text-lg font-semibold mb-4">Account Code Found</h2>
-          <p className="text-sm mb-4">
+        <div className="rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">Account Code Found</h2>
+          <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
             We found an existing account code for this email address. Would you
             like to use it or create a new one?
           </p>
@@ -519,9 +519,9 @@ export default function WalletConnect({
     switch (currentStep) {
       case "connect":
         return (
-          <div className="rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-4">Connect Your Wallet</h2>
-            <p className="text-sm mb-4">
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Connect Your Wallet</h2>
+            <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
               This will be one of the owners of your multisig Safe
             </p>
             <button
@@ -530,7 +530,7 @@ export default function WalletConnect({
               className={`w-full px-4 py-2 rounded-xl flex items-center justify-center ${
                 isLoading 
                   ? "bg-gray-200 text-gray-500" 
-                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-semibold"
               }`}
             >
               <img 
@@ -545,11 +545,11 @@ export default function WalletConnect({
 
       case "email":
         return (
-          <div className="rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-4">Enter Your Email</h2>
-            <p className="text-sm mb-4">
-              Provide your email address which will be used as the second
-              authorization method for your multisig Safe.
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Enter Your Email</h2>
+            <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
+              This will be used as the second authorization method for your
+              multisig Safe.
             </p>
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               <div>
@@ -572,10 +572,10 @@ export default function WalletConnect({
               <button
                 type="submit"
                 disabled={isLoading || !email}
-                className={`w-full px-4 py-2 rounded-md ${
+                className={`w-full px-4 py-2 rounded-md font-semibold ${
                   isLoading || !email
                     ? "bg-gray-200 text-gray-500"
-                    : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
+                    : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
                 }`}
               >
                 {isLoading ? "Processing..." : "Continue"}
@@ -586,8 +586,8 @@ export default function WalletConnect({
 
       case "accountCode":
         return (
-          <div className="rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-4">Account Code</h2>
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Account Code</h2>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
               <p className="text-yellow-800 dark:text-yellow-300 text-sm font-medium">
                 Important: Save this account code securely! You&apos;ll need it
@@ -600,10 +600,10 @@ export default function WalletConnect({
             <button
               onClick={startDeployment}
               disabled={isLoading}
-              className={`w-full px-4 py-2 rounded-md ${
+              className={`w-full px-4 py-2 rounded-md font-semibold ${
                 isLoading 
                   ? "bg-gray-200 text-gray-500" 
-                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-medium"
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
               }`}
             >
               {isLoading ? "Processing..." : "Deploy Email Signer & Safe"}
@@ -613,8 +613,8 @@ export default function WalletConnect({
 
       case "deploying":
         return (
-          <div className="rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
                 className="animate-spin h-8 w-8 text-green-600 dark:text-green-400"
@@ -653,7 +653,7 @@ export default function WalletConnect({
 
       case "complete":
         return (
-          <div className="rounded-lg p-4">
+          <div className="rounded-lg">
             <div className="mb-4 text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 mb-3">
                 <svg
@@ -671,7 +671,7 @@ export default function WalletConnect({
                 </svg>
               </div>
               <h2 className="text-xl font-semibold">Setup Completed!</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mt-1">
                 You&apos;ve successfully set up your email signer and Safe
                 account.
               </p>
@@ -725,7 +725,7 @@ export default function WalletConnect({
                 setCurrentStep("email");
                 setLogs([]);
               }}
-              className="w-full px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
+              className="w-full px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Start Again
             </button>
@@ -737,7 +737,7 @@ export default function WalletConnect({
   // Metamask not installed case
   if (!isMetamaskInstalled) {
     return (
-      <div className="p-4 border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg w-full text-left">
+      <div className="border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg w-full text-left">
         <p className="text-yellow-800 dark:text-yellow-200">
           MetaMask is not installed. Please install it to use this application.
         </p>
@@ -745,7 +745,7 @@ export default function WalletConnect({
           href="https://metamask.io/download/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block"
+          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block font-semibold"
         >
           Download MetaMask
         </a>

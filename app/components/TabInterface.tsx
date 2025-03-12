@@ -19,7 +19,7 @@ export default function TabInterface({
 
   return (
     <div className="w-full">
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center">
         <div className="inline-flex rounded-lg border border-[#272727]">
           {tabs.map((tab) => (
             <button
