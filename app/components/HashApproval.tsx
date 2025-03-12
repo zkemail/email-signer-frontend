@@ -586,7 +586,7 @@ export default function HashApproval({
             id="email-approval"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
             placeholder="your@email.com"
             required
           />
@@ -605,7 +605,7 @@ export default function HashApproval({
               id="accountCode"
               value={accountCode}
               onChange={(e) => setAccountCode(e.target.value)}
-              className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
+              className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
               placeholder="Account Code"
               required
             />
@@ -627,7 +627,7 @@ export default function HashApproval({
             id="safeAddress"
             value={safeAddress}
             onChange={(e) => setSafeAddress(e.target.value)}
-            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
             placeholder="0x..."
             required
           />
@@ -650,7 +650,7 @@ export default function HashApproval({
             id="hashToApprove"
             value={hashToApprove}
             onChange={(e) => setHashToApprove(e.target.value)}
-            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent"
+            className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
             placeholder="0x..."
             required
           />

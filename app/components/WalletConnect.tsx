@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   createWalletClient,
   custom,
@@ -58,6 +58,10 @@ export default function WalletConnect({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+
+  // Add this state for copy tooltip
+  const [showCopyTooltip, setShowCopyTooltip] = useState(false);
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize on component mount
   useEffect(() => {
@@ -486,6 +490,24 @@ export default function WalletConnect({
     }
   };
 
+  // Add this function to copy account code to clipboard
+  const copyAccountCodeToClipboard = () => {
+    navigator.clipboard.writeText(accountCode);
+    
+    // Clear any existing timeout
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+    }
+    
+    // Show the tooltip
+    setShowCopyTooltip(true);
+    
+    // Hide the tooltip after 2 seconds
+    tooltipTimeoutRef.current = setTimeout(() => {
+      setShowCopyTooltip(false);
+    }, 2000);
+  };
+
   // Render the step content based on current step
   const renderStepContent = () => {
     // If showing account code confirmation dialog, render that
@@ -500,13 +522,13 @@ export default function WalletConnect({
           <div className="flex space-x-3">
             <button
               onClick={useExistingAccountCode}
-              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Use Existing
             </button>
             <button
               onClick={createNewAccountCodeInstead}
-              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-medium"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Create New
             </button>
@@ -564,7 +586,7 @@ export default function WalletConnect({
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-slate-700"
+                  className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
                   placeholder="your@email.com"
                   required
                 />
@@ -589,13 +611,29 @@ export default function WalletConnect({
           <div className="rounded-lg">
             <h2 className="text-lg font-semibold mb-2">Account Code</h2>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
-              <p className="text-yellow-800 dark:text-yellow-300 text-sm font-medium">
+              <p className="text-yellow-800 dark:text-yellow-300 text-sm">
                 Important: Save this account code securely! You&apos;ll need it
                 to authorize operations with your email.
               </p>
             </div>
-            <div className="p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-center text-lg mb-4">
-              {accountCode}
+            <div className="relative">
+              <div className="p-2 rounded-[8px] border border-[#272727] bg-[#161819] font-mono text-center mb-4 pr-10">
+                {accountCode}
+              </div>
+              <button
+                onClick={copyAccountCodeToClipboard}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+                aria-label="Copy account code"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                {showCopyTooltip && (
+                  <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                    Copied!
+                  </div>
+                )}
+              </button>
             </div>
             <button
               onClick={startDeployment}
@@ -710,9 +748,25 @@ export default function WalletConnect({
 
               <div>
                 <h3 className="text-sm font-medium">Account Code:</h3>
-                <p className="p-2 bg-gray-100 dark:bg-slate-700 rounded-md text-sm font-mono">
-                  {accountCode}
-                </p>
+                <div className="relative">
+                  <p className="p-2 bg-gray-100 dark:bg-slate-700 rounded-md text-sm font-mono pr-10">
+                    {accountCode}
+                  </p>
+                  <button
+                    onClick={copyAccountCodeToClipboard}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
+                    aria-label="Copy account code"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    {showCopyTooltip && (
+                      <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                        Copied!
+                      </div>
+                    )}
+                  </button>
+                </div>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                   Save this code securely! You&apos;ll need it to approve
                   transactions.
