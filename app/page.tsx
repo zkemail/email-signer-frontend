@@ -21,17 +21,10 @@ export default function Home() {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  const handleWalletConnect = (address: string) => {
+  const handleWalletConnect = (address: string, client: WalletClient) => {
     setWalletAddress(address);
     setIsWalletConnected(true);
-
-    // Create wallet client using the connected MetaMask
-    const client = createWalletClient({
-      chain: sepolia,
-      transport: custom(window.ethereum),
-    });
     setWalletClient(client);
-
     addLog(`Connected to wallet: ${address}`);
   };
 
@@ -82,14 +75,33 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-2 md:p-6 max-w-6xl mx-auto">
-      <header className="mb-4">
-        <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Deploy and manage your email signer accounts
-        </p>
+      <header className="relative overflow-hidden rounded-t-2xl h-80">
+        <div 
+          className="absolute inset-0 bg-cover bg-center z-0" 
+          style={{ backgroundImage: "url('/bg-image.png')" }}
+        ></div>
+        <div className="relative z-10 p-6 bg-black/40 text-white h-full flex flex-col justify-end">
+          <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
+          <p className="text-gray-200 mt-1">
+            Deploy and manage your email signer accounts
+          </p>
+        </div>
       </header>
 
-      <TabInterface tabs={tabs} defaultTabId="registration" />
+      {!isWalletConnected ? (
+        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="max-w-md mx-auto">
+            <WalletConnect
+              onConnect={handleWalletConnect}
+              onDisconnect={handleWalletDisconnect}
+              isConnected={isWalletConnected}
+              address={walletAddress}
+            />
+          </div>
+        </div>
+      ) : (
+        <TabInterface tabs={tabs} defaultTabId="registration" />
+      )}
     </main>
   );
 }
