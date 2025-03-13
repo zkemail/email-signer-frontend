@@ -659,7 +659,7 @@ export default function HashApproval({
         <button
           type="submit"
           disabled={isLoading || !hasAccountCode || !walletClient}
-          className={`w-full py-2 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 ${
+          className={`w-full py-2 px-4 rounded-md font-semibold flex items-center justify-center gap-2 ${
             isLoading || !hasAccountCode || !walletClient
               ? "bg-green-400 cursor-not-allowed"
               : "bg-white text-black hover:bg-gray-100"
@@ -682,7 +682,7 @@ export default function HashApproval({
             <summary className="text-sm font-medium flex items-center justify-between">
               <span>Process Log</span>
               <img 
-                src="/chevron-up.svg" 
+                src="/chevron-down.svg" 
                 alt="Toggle" 
                 className="w-4 h-4 transition-transform group-open:rotate-180" 
               />

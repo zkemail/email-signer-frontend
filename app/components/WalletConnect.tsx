@@ -676,7 +676,7 @@ export default function WalletConnect({
               </svg>
             </div>
 
-            <div className="mb-4 h-48 overflow-y-auto p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm">
+            {/* <div className="mb-4 h-48 overflow-y-auto p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm">
               {logs.map((log, index) => (
                 <div key={index} className="mb-1">
                   <span className="text-gray-500 dark:text-gray-400">
@@ -685,6 +685,29 @@ export default function WalletConnect({
                   {log}
                 </div>
               ))}
+            </div> */}
+
+            <div className="mt-4 p-3 rounded-[8px] border border-[#272727] bg-[#161819]">
+              <details className="cursor-pointer group" open>
+                <summary className="text-sm font-medium flex items-center justify-between">
+                  <span>Process Log</span>
+                  <img 
+                    src="/chevron-down.svg" 
+                    alt="Toggle" 
+                    className="w-4 h-4 transition-transform group-open:rotate-180" 
+                  />
+                </summary>
+                <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
+                  {logs.map((log, index) => (
+                    <div key={index}>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        [{index + 1}]
+                      </span>{" "}
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              </details>
             </div>
           </div>
         );
@@ -826,18 +849,23 @@ export default function WalletConnect({
         <div className="mt-4 flex justify-center w-full">
           <div className="flex items-center space-x-2">
             {["email", "accountCode", "deploying", "complete"].map(
-              (step, i) => (
-                <div
-                  key={step}
-                  className={`h-2 w-2 rounded-full ${
-                    ["email", "accountCode", "deploying", "complete"].indexOf(
-                      currentStep as Step
-                    ) >= i
-                      ? "bg-green-600 dark:bg-green-400"
-                      : "bg-gray-300 dark:bg-gray-600"
-                  }`}
-                />
-              )
+              (step, i) => {
+                const stepIndex = ["email", "accountCode", "deploying", "complete"].indexOf(
+                  currentStep as Step
+                );
+                return (
+                  <div
+                    key={step}
+                    className={`h-2 w-2 rounded-full ${
+                      stepIndex > i
+                        ? "bg-green-600 dark:bg-green-400" // Completed steps in green
+                        : stepIndex === i
+                        ? "bg-white bg-white" // Active step in white
+                        : "bg-gray-300 dark:bg-gray-600" // Future steps in gray
+                    }`}
+                  />
+                );
+              }
             )}
           </div>
         </div>
