@@ -83,7 +83,7 @@ export default function Home() {
         <div className="relative z-10 p-6 bg-black/40 text-white h-full flex flex-col justify-end">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold">Email Signer &#123;Sepolia&#125;</h1>
+              <h1 className="text-3xl font-bold">Email Signer</h1>
               <p className="text-gray-200 mt-1">
                 Deploy and manage your email signer accounts
               </p>
