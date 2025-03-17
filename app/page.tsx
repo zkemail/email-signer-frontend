@@ -76,8 +76,8 @@ export default function Home() {
   return (
     <main className="flex-grow p-2 pt-[120px] md:p-6 md:pt-[160px] max-w-[768px] mx-auto mb-8">
       <header className="relative overflow-hidden rounded-t-2xl h-80">
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0" 
+        <div
+          className="absolute inset-0 bg-cover bg-center z-0"
           style={{ backgroundImage: "url('/bg-image.png')" }}
         ></div>
         <div className="relative z-10 p-6 bg-black/40 text-white h-full flex flex-col justify-end">
@@ -88,16 +88,17 @@ export default function Home() {
                 Deploy and manage your email signer accounts
               </p>
             </div>
-            
+
             {/* Wallet connection status */}
             {isWalletConnected && walletAddress && (
               <div className="flex items-center bg-black/50 px-3 py-2 rounded-lg">
                 <div className="flex items-center mr-3">
                   <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
                   <span className="text-sm font-medium">
-                    {`${walletAddress.substring(0, 6)}...${walletAddress.substring(
-                      walletAddress.length - 4
-                    )}`}
+                    {`${walletAddress.substring(
+                      0,
+                      6
+                    )}...${walletAddress.substring(walletAddress.length - 4)}`}
                   </span>
                 </div>
                 <button

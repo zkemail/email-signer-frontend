@@ -681,15 +681,18 @@ export default function HashApproval({
           <details className="cursor-pointer group">
             <summary className="text-sm font-medium flex items-center justify-between">
               <span>Process Log</span>
-              <img 
-                src="/chevron-down.svg" 
-                alt="Toggle" 
-                className="w-4 h-4 transition-transform group-open:rotate-180" 
+              <img
+                src="/chevron-down.svg"
+                alt="Toggle"
+                className="w-4 h-4 transition-transform group-open:rotate-180"
               />
             </summary>
             <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
               {logs.map((log, index) => (
-                <div key={index} dangerouslySetInnerHTML={{ __html: log }}></div>
+                <div
+                  key={index}
+                  dangerouslySetInnerHTML={{ __html: log }}
+                ></div>
               ))}
             </div>
           </details>

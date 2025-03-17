@@ -493,15 +493,15 @@ export default function WalletConnect({
   // Add this function to copy account code to clipboard
   const copyAccountCodeToClipboard = () => {
     navigator.clipboard.writeText(accountCode);
-    
+
     // Clear any existing timeout
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
     }
-    
+
     // Show the tooltip
     setShowCopyTooltip(true);
-    
+
     // Hide the tooltip after 2 seconds
     tooltipTimeoutRef.current = setTimeout(() => {
       setShowCopyTooltip(false);
@@ -550,15 +550,15 @@ export default function WalletConnect({
               onClick={connectWallet}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-xl flex items-center justify-center ${
-                isLoading 
-                  ? "bg-gray-200 text-gray-500" 
+                isLoading
+                  ? "bg-gray-200 text-gray-500"
                   : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-semibold"
               }`}
             >
-              <img 
-                src="/metamask.svg" 
-                alt="Metamask" 
-                className="w-5 h-5 mr-2" 
+              <img
+                src="/metamask.svg"
+                alt="Metamask"
+                className="w-5 h-5 mr-2"
               />
               {isLoading ? "Connecting..." : "Connect Metamask"}
             </button>
@@ -625,8 +625,19 @@ export default function WalletConnect({
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
                 aria-label="Copy account code"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
                 </svg>
                 {showCopyTooltip && (
                   <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
@@ -639,8 +650,8 @@ export default function WalletConnect({
               onClick={startDeployment}
               disabled={isLoading}
               className={`w-full px-4 py-2 rounded-md font-semibold ${
-                isLoading 
-                  ? "bg-gray-200 text-gray-500" 
+                isLoading
+                  ? "bg-gray-200 text-gray-500"
                   : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
               }`}
             >
@@ -691,10 +702,10 @@ export default function WalletConnect({
               <details className="cursor-pointer group" open>
                 <summary className="text-sm font-medium flex items-center justify-between">
                   <span>Process Log</span>
-                  <img 
-                    src="/chevron-down.svg" 
-                    alt="Toggle" 
-                    className="w-4 h-4 transition-transform group-open:rotate-180" 
+                  <img
+                    src="/chevron-down.svg"
+                    alt="Toggle"
+                    className="w-4 h-4 transition-transform group-open:rotate-180"
                   />
                 </summary>
                 <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
@@ -780,8 +791,19 @@ export default function WalletConnect({
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
                     aria-label="Copy account code"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
                     </svg>
                     {showCopyTooltip && (
                       <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
@@ -833,9 +855,7 @@ export default function WalletConnect({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Main content */}
-      <div className="w-full text-left flex-grow">
-        {renderStepContent()}
-      </div>
+      <div className="w-full text-left flex-grow">{renderStepContent()}</div>
 
       {/* Error display - centralized at the bottom */}
       {error && (
@@ -850,9 +870,12 @@ export default function WalletConnect({
           <div className="flex items-center space-x-2">
             {["email", "accountCode", "deploying", "complete"].map(
               (step, i) => {
-                const stepIndex = ["email", "accountCode", "deploying", "complete"].indexOf(
-                  currentStep as Step
-                );
+                const stepIndex = [
+                  "email",
+                  "accountCode",
+                  "deploying",
+                  "complete",
+                ].indexOf(currentStep as Step);
                 return (
                   <div
                     key={step}

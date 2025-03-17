@@ -21,7 +21,7 @@ export default function TabInterface({
 
   // Update the indicator position when active tab changes
   useEffect(() => {
-    const activeIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
     if (activeIndex >= 0 && tabRefs.current[activeIndex]) {
       const tabElement = tabRefs.current[activeIndex];
       setIndicatorStyle({
@@ -36,16 +36,18 @@ export default function TabInterface({
       <div className="flex justify-center">
         <div className="inline-flex rounded-lg border border-[#272727] relative">
           {/* Moving background indicator */}
-          <div 
+          <div
             className="absolute top-0 bottom-0 bg-white rounded-lg transition-all duration-300 ease-in-out z-0"
             style={indicatorStyle}
           />
-          
+
           {/* Tab buttons */}
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
-              ref={(el) => { tabRefs.current[index] = el; }}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
               onClick={() => setActiveTab(tab.id)}
               className={`py-2 px-6 text-sm font-semibold relative z-10 transition-colors duration-300 ${
                 activeTab === tab.id
