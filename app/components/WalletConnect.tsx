@@ -676,17 +676,6 @@ export default function WalletConnect({
               </svg>
             </div>
 
-            {/* <div className="mb-4 h-48 overflow-y-auto p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm">
-              {logs.map((log, index) => (
-                <div key={index} className="mb-1">
-                  <span className="text-gray-500 dark:text-gray-400">
-                    [{index + 1}]
-                  </span>{" "}
-                  {log}
-                </div>
-              ))}
-            </div> */}
-
             <div className="mt-4 p-3 rounded-[8px] border border-[#272727] bg-[#161819]">
               <details className="cursor-pointer group" open>
                 <summary className="text-sm font-medium flex items-center justify-between">
