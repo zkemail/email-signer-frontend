@@ -670,7 +670,7 @@ export default function HashApproval({
           ) : (
             <>
               <Image
-                src="/checkFat.svg"
+                src="/check-fat.svg"
                 alt=""
                 className="w-5 h-5"
                 width={20}
