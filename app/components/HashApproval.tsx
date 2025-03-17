@@ -14,6 +14,7 @@ import {
   SafeMultisigTransactionResponse,
 } from "@safe-global/types-kit";
 import SafeApiKit from "@safe-global/api-kit";
+import Image from "next/image";
 
 interface HashApprovalProps {
   email: string;
@@ -669,7 +670,13 @@ export default function HashApproval({
             "Processing..."
           ) : (
             <>
-              <img src="/checkFat.svg" alt="" className="w-5 h-5" />
+              <Image
+                src="/checkFat.svg"
+                alt=""
+                className="w-5 h-5"
+                width={20}
+                height={20}
+              />
               Approve Hash
             </>
           )}
@@ -681,10 +688,12 @@ export default function HashApproval({
           <details className="cursor-pointer group">
             <summary className="text-sm font-medium flex items-center justify-between">
               <span>Process Log</span>
-              <img
+              <Image
                 src="/chevron-down.svg"
                 alt="Toggle"
                 className="w-4 h-4 transition-transform group-open:rotate-180"
+                width={16}
+                height={16}
               />
             </summary>
             <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">

@@ -17,6 +17,7 @@ import Safe, {
 import { SafeVersion } from "@safe-global/types-kit";
 import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
 import { buildPoseidon } from "circomlibjs";
+import Image from "next/image";
 
 interface WalletConnectProps {
   onConnect: (address: string, walletClient: WalletClient) => void;
@@ -541,10 +542,12 @@ export default function WalletConnect({
                   : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-semibold"
               }`}
             >
-              <img
+              <Image
                 src="/metamask.svg"
                 alt="Metamask"
                 className="w-5 h-5 mr-2"
+                width={20}
+                height={20}
               />
               {isLoading ? "Connecting..." : "Connect Metamask"}
             </button>
@@ -688,10 +691,12 @@ export default function WalletConnect({
               <details className="cursor-pointer group" open>
                 <summary className="text-sm font-medium flex items-center justify-between">
                   <span>Process Log</span>
-                  <img
+                  <Image
                     src="/chevron-down.svg"
                     alt="Toggle"
                     className="w-4 h-4 transition-transform group-open:rotate-180"
+                    width={16}
+                    height={16}
                   />
                 </summary>
                 <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
