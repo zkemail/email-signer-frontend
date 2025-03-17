@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   createWalletClient,
   custom,
@@ -17,6 +17,7 @@ import Safe, {
 import { SafeVersion } from "@safe-global/types-kit";
 import { RPC_URL, RELAYER_URL, EMAIL_SIGNER_FACTORY_ADDRESS } from "../config";
 import { buildPoseidon } from "circomlibjs";
+import Image from "next/image";
 
 interface WalletConnectProps {
   onConnect: (address: string, walletClient: WalletClient) => void;
@@ -29,8 +30,6 @@ type Step = "connect" | "email" | "accountCode" | "deploying" | "complete";
 
 export default function WalletConnect({
   onConnect,
-  onDisconnect,
-  isConnected,
   address,
 }: WalletConnectProps) {
   // Core state
@@ -58,6 +57,10 @@ export default function WalletConnect({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+
+  // Add this state for copy tooltip
+  const [showCopyTooltip, setShowCopyTooltip] = useState(false);
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize on component mount
   useEffect(() => {
@@ -171,18 +174,6 @@ export default function WalletConnect({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Disconnect wallet and reset state
-  const disconnectWallet = () => {
-    setSafeAddress(null);
-    setEmailSignerAddress(null);
-    setAccountCode("");
-    setEmail("");
-    setCurrentStep("connect");
-    setLogs([]);
-    clearError();
-    onDisconnect();
   };
 
   // Handle email submission
@@ -486,27 +477,45 @@ export default function WalletConnect({
     }
   };
 
+  // Add this function to copy account code to clipboard
+  const copyAccountCodeToClipboard = () => {
+    navigator.clipboard.writeText(accountCode);
+
+    // Clear any existing timeout
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+    }
+
+    // Show the tooltip
+    setShowCopyTooltip(true);
+
+    // Hide the tooltip after 2 seconds
+    tooltipTimeoutRef.current = setTimeout(() => {
+      setShowCopyTooltip(false);
+    }, 2000);
+  };
+
   // Render the step content based on current step
   const renderStepContent = () => {
     // If showing account code confirmation dialog, render that
     if (showAccountCodeConfirmation) {
       return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-          <h2 className="text-lg font-semibold mb-4">Account Code Found</h2>
-          <p className="text-sm mb-4">
+        <div className="rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">Account Code Found</h2>
+          <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
             We found an existing account code for this email address. Would you
             like to use it or create a new one?
           </p>
           <div className="flex space-x-3">
             <button
               onClick={useExistingAccountCode}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Use Existing
             </button>
             <button
               onClick={createNewAccountCodeInstead}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="flex-1 px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Create New
             </button>
@@ -519,19 +528,27 @@ export default function WalletConnect({
     switch (currentStep) {
       case "connect":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Connect Your Wallet</h2>
-            <p className="text-sm mb-4">
-              To get started, please connect your Ethereum wallet. This will be
-              one of the owners of your multisig Safe.
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Connect Your Wallet</h2>
+            <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
+              This will be one of the owners of your multisig Safe
             </p>
             <button
               onClick={connectWallet}
               disabled={isLoading}
-              className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+              className={`w-full px-4 py-2 rounded-xl flex items-center justify-center ${
+                isLoading
+                  ? "bg-gray-200 text-gray-500"
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 font-semibold"
               }`}
             >
+              <Image
+                src="/metamask.svg"
+                alt="Metamask"
+                className="w-5 h-5 mr-2"
+                width={20}
+                height={20}
+              />
               {isLoading ? "Connecting..." : "Connect Metamask"}
             </button>
           </div>
@@ -539,11 +556,11 @@ export default function WalletConnect({
 
       case "email":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Enter Your Email</h2>
-            <p className="text-sm mb-4">
-              Provide your email address which will be used as the second
-              authorization method for your multisig Safe.
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Enter Your Email</h2>
+            <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mb-4">
+              This will be used as the second authorization method for your
+              multisig Safe.
             </p>
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               <div>
@@ -558,7 +575,7 @@ export default function WalletConnect({
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700"
+                  className="block w-full rounded-[8px] border border-[#272727] px-3 py-2 bg-transparent focus:border-[#606060] focus:bg-[#111314] focus:shadow-[0px_0px_0px_2px_#3B3B3B] focus:outline-none"
                   placeholder="your@email.com"
                   required
                 />
@@ -566,10 +583,10 @@ export default function WalletConnect({
               <button
                 type="submit"
                 disabled={isLoading || !email}
-                className={`w-full px-4 py-2 rounded-md text-white ${
+                className={`w-full px-4 py-2 rounded-md font-semibold ${
                   isLoading || !email
-                    ? "bg-green-400"
-                    : "bg-green-600 hover:bg-green-700"
+                    ? "bg-gray-200 text-gray-500"
+                    : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
                 }`}
               >
                 {isLoading ? "Processing..." : "Continue"}
@@ -580,22 +597,51 @@ export default function WalletConnect({
 
       case "accountCode":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Account Code</h2>
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Account Code</h2>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
-              <p className="text-yellow-800 dark:text-yellow-300 text-sm font-medium">
+              <p className="text-yellow-800 dark:text-yellow-300 text-sm">
                 Important: Save this account code securely! You&apos;ll need it
                 to authorize operations with your email.
               </p>
             </div>
-            <div className="p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-center text-lg mb-4">
-              {accountCode}
+            <div className="relative">
+              <div className="p-2 rounded-[8px] border border-[#272727] bg-[#161819] font-mono text-center mb-4 pr-10">
+                {accountCode}
+              </div>
+              <button
+                onClick={copyAccountCodeToClipboard}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+                aria-label="Copy account code"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                {showCopyTooltip && (
+                  <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                    Copied!
+                  </div>
+                )}
+              </button>
             </div>
             <button
               onClick={startDeployment}
               disabled={isLoading}
-              className={`w-full px-4 py-2 rounded-md text-white ${
-                isLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+              className={`w-full px-4 py-2 rounded-md font-semibold ${
+                isLoading
+                  ? "bg-gray-200 text-gray-500"
+                  : "bg-white text-slate-800 hover:bg-gray-100 border border-gray-300"
               }`}
             >
               {isLoading ? "Processing..." : "Deploy Email Signer & Safe"}
@@ -605,8 +651,8 @@ export default function WalletConnect({
 
       case "deploying":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Deploying...</h2>
+          <div className="rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Deploying...</h2>
             <div className="flex justify-center mb-4">
               <svg
                 className="animate-spin h-8 w-8 text-green-600 dark:text-green-400"
@@ -630,22 +676,36 @@ export default function WalletConnect({
               </svg>
             </div>
 
-            <div className="mb-4 h-48 overflow-y-auto p-3 bg-gray-100 dark:bg-slate-700 rounded-md font-mono text-sm">
-              {logs.map((log, index) => (
-                <div key={index} className="mb-1">
-                  <span className="text-gray-500 dark:text-gray-400">
-                    [{index + 1}]
-                  </span>{" "}
-                  {log}
+            <div className="mt-4 p-3 rounded-[8px] border border-[#272727] bg-[#161819]">
+              <details className="cursor-pointer group" open>
+                <summary className="text-sm font-medium flex items-center justify-between">
+                  <span>Process Log</span>
+                  <Image
+                    src="/chevron-down.svg"
+                    alt="Toggle"
+                    className="w-4 h-4 transition-transform group-open:rotate-180"
+                    width={16}
+                    height={16}
+                  />
+                </summary>
+                <div className="space-y-1 text-xs font-mono max-h-60 overflow-y-auto mt-2">
+                  {logs.map((log, index) => (
+                    <div key={index}>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        [{index + 1}]
+                      </span>{" "}
+                      {log}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </details>
             </div>
           </div>
         );
 
       case "complete":
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4">
+          <div className="rounded-lg">
             <div className="mb-4 text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 mb-3">
                 <svg
@@ -663,7 +723,7 @@ export default function WalletConnect({
                 </svg>
               </div>
               <h2 className="text-xl font-semibold">Setup Completed!</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-[#A8A8A8] font-normal text-base leading-5 tracking-[0.32px] mt-1">
                 You&apos;ve successfully set up your email signer and Safe
                 account.
               </p>
@@ -702,9 +762,36 @@ export default function WalletConnect({
 
               <div>
                 <h3 className="text-sm font-medium">Account Code:</h3>
-                <p className="p-2 bg-gray-100 dark:bg-slate-700 rounded-md text-sm font-mono">
-                  {accountCode}
-                </p>
+                <div className="relative">
+                  <p className="p-2 bg-gray-100 dark:bg-slate-700 rounded-md text-sm font-mono pr-10">
+                    {accountCode}
+                  </p>
+                  <button
+                    onClick={copyAccountCodeToClipboard}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
+                    aria-label="Copy account code"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    {showCopyTooltip && (
+                      <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                        Copied!
+                      </div>
+                    )}
+                  </button>
+                </div>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                   Save this code securely! You&apos;ll need it to approve
                   transactions.
@@ -717,7 +804,7 @@ export default function WalletConnect({
                 setCurrentStep("email");
                 setLogs([]);
               }}
-              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="w-full px-4 py-2 bg-white text-slate-800 hover:bg-gray-100 border border-gray-300 rounded-md font-semibold"
             >
               Start Again
             </button>
@@ -729,7 +816,7 @@ export default function WalletConnect({
   // Metamask not installed case
   if (!isMetamaskInstalled) {
     return (
-      <div className="p-4 border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg">
+      <div className="border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg w-full text-left">
         <p className="text-yellow-800 dark:text-yellow-200">
           MetaMask is not installed. Please install it to use this application.
         </p>
@@ -737,7 +824,7 @@ export default function WalletConnect({
           href="https://metamask.io/download/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block"
+          className="text-green-600 hover:underline dark:text-green-400 mt-2 inline-block font-semibold"
         >
           Download MetaMask
         </a>
@@ -746,54 +833,42 @@ export default function WalletConnect({
   }
 
   return (
-    <div className="w-full h-full">
-      {/* Wallet connection status - only show when connected */}
-      {isConnected && address && (
-        <div className="flex justify-between items-center mb-4 p-3 bg-gray-100 dark:bg-slate-700 rounded-md">
-          <div className="flex items-center">
-            <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
-            <span className="text-sm font-medium">
-              {`${address.substring(0, 6)}...${address.substring(
-                address.length - 4
-              )}`}
-            </span>
-          </div>
-          <button
-            onClick={disconnectWallet}
-            className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
-          >
-            Disconnect
-          </button>
-        </div>
-      )}
-
+    <div className="w-full h-full flex flex-col">
       {/* Main content */}
-      {renderStepContent()}
+      <div className="w-full text-left flex-grow">{renderStepContent()}</div>
 
       {/* Error display - centralized at the bottom */}
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 rounded-md">
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 rounded-md w-full">
           <p className="text-red-800 dark:text-red-300 text-sm">{error}</p>
         </div>
       )}
 
       {/* Step indicator */}
       {currentStep !== "connect" && (
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4 flex justify-center w-full">
           <div className="flex items-center space-x-2">
             {["email", "accountCode", "deploying", "complete"].map(
-              (step, i) => (
-                <div
-                  key={step}
-                  className={`h-2 w-2 rounded-full ${
-                    ["email", "accountCode", "deploying", "complete"].indexOf(
-                      currentStep as Step
-                    ) >= i
-                      ? "bg-green-600 dark:bg-green-400"
-                      : "bg-gray-300 dark:bg-gray-600"
-                  }`}
-                />
-              )
+              (step, i) => {
+                const stepIndex = [
+                  "email",
+                  "accountCode",
+                  "deploying",
+                  "complete",
+                ].indexOf(currentStep as Step);
+                return (
+                  <div
+                    key={step}
+                    className={`h-2 w-2 rounded-full ${
+                      stepIndex > i
+                        ? "bg-green-600 dark:bg-green-400" // Completed steps in green
+                        : stepIndex === i
+                        ? "bg-white bg-white" // Active step in white
+                        : "bg-gray-300 dark:bg-gray-600" // Future steps in gray
+                    }`}
+                  />
+                );
+              }
             )}
           </div>
         </div>
