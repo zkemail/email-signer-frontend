@@ -29,8 +29,6 @@ type Step = "connect" | "email" | "accountCode" | "deploying" | "complete";
 
 export default function WalletConnect({
   onConnect,
-  onDisconnect,
-  isConnected,
   address,
 }: WalletConnectProps) {
   // Core state
@@ -175,18 +173,6 @@ export default function WalletConnect({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Disconnect wallet and reset state
-  const disconnectWallet = () => {
-    setSafeAddress(null);
-    setEmailSignerAddress(null);
-    setAccountCode("");
-    setEmail("");
-    setCurrentStep("connect");
-    setLogs([]);
-    clearError();
-    onDisconnect();
   };
 
   // Handle email submission

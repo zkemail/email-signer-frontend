@@ -1,7 +1,6 @@
 "use client";
-import { createWalletClient, custom, WalletClient } from "viem";
+import { WalletClient } from "viem";
 import React, { useState } from "react";
-import { sepolia } from "viem/chains";
 import HashApproval from "./components/HashApproval";
 import TabInterface from "./components/TabInterface";
 import WalletConnect from "./components/WalletConnect";
